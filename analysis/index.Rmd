@@ -7,8 +7,11 @@ title: "Home"
 **Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
 
 
-## Related papers
+## Notes
 
-### Topic 1
+* [Related papers](related-papers.html)
 
-### Topic 2
+
+## Practical examples
+
+* [EDGE](edge-example.html)
