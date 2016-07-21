@@ -1,7 +1,6 @@
 ---
-title: "Untitled"
-author: "First Last"
-date: YYYY-MM-DD
+title: "Relevant papers"
+date: 2016-07-21
 ---
 
 **Last updated:** `r Sys.Date()`
@@ -11,7 +10,6 @@ date: YYYY-MM-DD
 ```{r chunk-options, include=FALSE}
 source("chunk-options.R")
 ```
-
 
 ## Topic 1
 
