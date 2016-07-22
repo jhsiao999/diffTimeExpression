@@ -1,5 +1,5 @@
 ---
-title: "Example_papers_using_time_course_RNASeq"
+title: "Selected RNA-seq studies of time course gene expression"
 author: "Lauren Blake"
 date: "July 22, 2016"
 output: html_document
@@ -13,8 +13,9 @@ output: html_document
 source("chunk-options.R")
 ```
 
-The following are examples of the implementation of the edge software to analyze comparative longitudinal time series RNA-seq data.
+## EDGE application
 
+The following are examples of the implementation of the EDGE ([Storey et al 2005](http://dx.doi.org/10.1073/pnas.0504609102)) software to analyze comparative longitudinal time series RNA-seq data.
 
 ### Wang X et al 2014
 
@@ -26,7 +27,7 @@ The following are examples of the implementation of the edge software to analyze
 
 ### Scialdone et al 2016 (from John Marioni's lab)
 
-[Scialdone et al 2016](http://www.nature.com/nature/journal/v535/n7611/full/nature18633.html) uses a clustering method to perform expression profiling in single cell data e.g. [Extended Data Figures 3, 6, and 9](http://www.nature.com/nature/journal/v535/n7611/fig_tab/nature18633_ft.html). Do you think that it's worth talking about this?
+[Scialdone et al 2016](http://www.nature.com/nature/journal/v535/n7611/full/nature18633.html) uses a clustering method to perform expression profiling in single cell data e.g. [Extended Data Figures 3, 6, and 9](http://www.nature.com/nature/journal/v535/n7611/fig_tab/nature18633_ft.html). Do you think that it's worth talking about this? 
 
 
 ## Session information
