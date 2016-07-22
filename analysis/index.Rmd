@@ -9,7 +9,8 @@ title: "Home"
 
 ## Notes
 
-* [Related papers](related-papers.html)
+* [Selected papers on statistical and analytical issues](related-papers.html)
+* [Selected RNA-seq studies of time course gene expression](Examples-papers-using-RNAseq-time-series.html)
 
 
 ## Practical examples

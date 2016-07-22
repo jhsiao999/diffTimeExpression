@@ -27,6 +27,7 @@ source("chunk-options.R")
 
 
 
+
 ## Session information
 
 ```{r info}
