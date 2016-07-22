@@ -8,18 +8,19 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 
+
 <meta name="author" content="Lauren Blake" />
 
 <meta name="date" content="2016-07-22" />
 
 <title>Example_papers_using_time_course_RNASeq</title>
 
-<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<script src="libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="libs/bootstrap-3.3.1/css/united.min.css" rel="stylesheet" />
-<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
-<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
-<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<link href="libs/bootstrap-3.3.5/css/united.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.5/shim/respond.min.js"></script>
 
 <style type="text/css">
 
@@ -76,6 +77,34 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 
 
 
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
 </head>
 
 <body>
@@ -90,12 +119,34 @@ code {
   color: inherit;
   background-color: rgba(0, 0, 0, 0.04);
 }
-img { 
-  max-width:100%; 
-  height: auto; 
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
 }
 </style>
+
+
 <div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script src="libs/navigation-1.0/tabsets.js"></script>
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
 
 
 <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -118,19 +169,27 @@ img {
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-<div id="header">
-<h1 class="title">Example_papers_using_time_course_RNASeq</h1>
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Example_papers_using_time_course_RNASeq</h1>
 <h4 class="author"><em>Lauren Blake</em></h4>
 <h4 class="date"><em>July 22, 2016</em></h4>
+
 </div>
 
 <div id="TOC">
 <ul>
 <li><a href="#wang-x-et-al-2014">Wang X et al 2014</a></li>
 <li><a href="#li-f-et-al-2015">Li F et al 2015</a></li>
+<li><a href="#scialdone-et-al-2016-from-john-marionis-lab">Scialdone et al 2016 (from John Marioni’s lab)</a></li>
+<li><a href="#session-information">Session information</a></li>
 </ul>
 </div>
 
+<p><strong>Last updated:</strong> 2016-07-22</p>
+<p><strong>Code version:</strong> e720e1adc3f749641ca97a5cf3c0bf83e82039fd</p>
 <p>The following are examples of the implementation of the edge software to analyze comparative longitudinal time series RNA-seq data.</p>
 <div id="wang-x-et-al-2014" class="section level3">
 <h3>Wang X et al 2014</h3>
@@ -138,7 +197,32 @@ img {
 </div>
 <div id="li-f-et-al-2015" class="section level3">
 <h3>Li F et al 2015</h3>
-<p><a href="http://pubs.rsc.org/en/Content/ArticleLanding/2015/MB/C5MB00474H#!divAbstract">Li F et al 2015</a> used edge to identify differentially expressed lncRNAs as well as mRNAs across developmental states. The resulting curves can be found in 4b and 4c and some sample summaries are found in Figure 5 and Figure 6.</p>
+<p><a href="http://pubs.rsc.org/en/Content/ArticleLanding/2015/MB/C5MB00474H#!divAbstract">Li F et al 2015</a> used EDGE to identify differentially expressed lncRNAs as well as mRNAs across developmental states. The resulting curves can be found in 4b and 4c and some sample summaries are found in Figure 5 and Figure 6.</p>
+</div>
+<div id="scialdone-et-al-2016-from-john-marionis-lab" class="section level3">
+<h3>Scialdone et al 2016 (from John Marioni’s lab)</h3>
+<p><a href="http://www.nature.com/nature/journal/v535/n7611/full/nature18633.html">Scialdone et al 2016</a> uses a clustering method to perform expression profiling in single cell data e.g. <a href="http://www.nature.com/nature/journal/v535/n7611/fig_tab/nature18633_ft.html">Extended Data Figures 3, 6, and 9</a>. Do you think that it’s worth talking about this?</p>
+</div>
+<div id="session-information" class="section level2">
+<h2>Session information</h2>
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R Under development (unstable) (2016-03-11 r70310)
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+Running under: OS X 10.10.5 (Yosemite)
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] knitr_1.13
+
+loaded via a namespace (and not attached):
+ [1] magrittr_1.5    formatR_1.4     tools_3.3.0     htmltools_0.3.5
+ [5] yaml_2.1.13     Rcpp_0.12.5     stringi_1.1.1   rmarkdown_0.9.6
+ [9] stringr_1.0.0   digest_0.6.9    evaluate_0.9   </code></pre>
 </div>
 
 
@@ -166,6 +250,8 @@ $(document).ready(function () {
 });
 
 </script>
+
+
 
 </div>
 
