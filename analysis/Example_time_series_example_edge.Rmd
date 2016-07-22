@@ -1,0 +1,224 @@
+---
+title: "edge_time_series_example"
+author: "Lauren Blake"
+date: "July 21, 2016"
+output: html_document
+---
+
+### Introduction
+
+This file is going through the case study for a longitudinal time course experiment. The analysis will be performed using the R package edge from Storey et al. 2005. 
+
+In this endotoxin data set, blood samples were collected from 4 individuals that were given endotoxin and from 4 individuals that were given a placebo. Blood samples were collected before infusion and after 2, 4, 6, 9, and 24 hours. The leukocytes were isolated from the blood samples. **The goal is to identify genes that show "between-class temporal differential expression".**
+
+### Finding the endotoxin data
+
+```{r}
+# Load time series data package R
+
+# source("https://bioconductor.org/biocLite.R")
+# biocLite("edge")
+library("edge")
+library("ggplot2")
+library("splines")
+
+# Import the data
+
+data(endotoxin)
+
+# Look at the different components of the data
+head(endotoxin$class) # Stating whether control or endotoxin
+head(endotoxin$endoexpr) # This is a data frame of expression. The columns correspond to time points 1-6 for each person. For example, columns 1-6 are for individual 1 at time points 0, 2, 4, 6, and 24 hours. The rows correspond to the gene expression for 500 genes
+head(endotoxin$ind) # Individuals 1-8
+head(endotoxin$time) # Time points for each of the individuals
+
+# Rearrange endotoxin so it is easier to work with when plotting
+endotoxin_class <- rbind(endotoxin$ind, endotoxin$time, endotoxin$class, endotoxin$endoexpr)
+endotoxin_class <- as.data.frame(endotoxin_class)
+endotoxin_class_plot <- t(endotoxin_class)
+endotoxin_class_plot <- as.data.frame(endotoxin_class_plot)
+
+# In endotoxin_class, the first column is individual, the second is time, the third is endotoxin status (2 = endotoxin, 1 = control), and columns 4-503 is genes 1-500. 
+
+endoexpr <- endotoxin$endoexpr
+class <- endotoxin$class
+ind <- endotoxin$ind
+time <- endotoxin$time
+```
+
+### Plot for one gene
+
+```{r}
+# Create a graph for the second gene
+
+ggplot(data = endotoxin_class_plot, aes(y = endotoxin_class_plot$V5, x = endotoxin_class_plot$V2)) + geom_point(aes(color = factor(endotoxin_class_plot$V3, labels = c("Control", "Endotoxin")))) + labs(x = "Time (hours)", y = "Expression", title = "Expression over time for Gene 2") + scale_color_discrete(name = "Group")
+
+```
+
+### Creating the deSet object that is needed for the full and null models
+
+To use the command "build_study" to make the full and null model
+
+* grp is for the group (endotoxin or control)
+* tme is for time (hours 0, 2, 4, 6, 9, and 24)
+* ind is for the sample name (ind 1-8)
+* sampling is for the type of experiment (timecourse)
+
+Here, we are going to create the null model and then the full model. The null model uses the data from both groups to generate the B-spline basis matrix for a natural cubic spline. The full model will generate separate B-spline basis matrices (each for a natural cubic spline) for the endotoxin and control groups. 
+
+```{r}
+# Make a covariance matrix
+
+cov <- data.frame(ind = ind, tme = time, grp = class)
+
+head(cov)
+
+# Null model: make the basis matrix for natural cubic splines
+null_model <- ~grp + ns(tme, df = 2, intercept = FALSE)
+
+# Full model: make the basis matrix for natural cubic splines
+full_model <- ~grp + ns(tme, df = 2, intercept = FALSE) + (grp):ns(tme, df = 2, intercept = FALSE)
+```
+
+The command build_models is a deSet object that stores the relevant experimental data. We are going to give it the expression data, the covariance matrix, the full model, and the null model.
+
+This is the different parts of the de_obj (created with the build_models command):
+
+* Null.model- the null model with the adjustment variables (covariates) in the experiment
+* Null.matrix- the null model in the matrix form
+
+* Full.model- the full model with the adjustment variables AND the biological variables of interest
+* Full.matrix- the full model in the matrix form
+
+* Ind- contains the individuals
+* qvalueObj- contains p-values, q-values, and local false discovery rates for the significance of analysis
+
+```{r}
+de_obj <- build_models(data = endoexpr, cov = cov, full.model = full_model, null.model = null_model)
+
+slotNames(de_obj)
+
+summary(de_obj)
+
+# Extract different parts of de_obj (from build_models)
+
+# Access the expression values
+exprs(de_obj)
+
+# Access the covariates
+pData(de_obj)
+
+# Access the matrix for the null model
+nullMatrix(de_obj)
+
+# Access the matrix for the full model
+fullMatrix(de_obj)
+```
+
+### Fit the data
+
+We are going to fit each of the models using least squares. From this, we are going to get the following information:
+
+* fit.full/fit.null- fitted values from the full/null models
+
+* res.fill/res.null- residuals from the full/null model
+
+* dH.full- diagonal elements in the projection matrix for the full model
+
+* beta.coef- the coefficients for the full model
+
+* stat.type- the statistic type used (either the likelihood ratio test or the optimal discovery procedure). I will talk about the different statistics in the next section.
+
+```{r}
+# Fit the null and full models
+
+ef_obj <- fit_models(de_obj, stat.type = "lrt")
+
+# Look at the data
+
+summary(ef_obj)
+
+
+# Access the fitted coefficients of the full model
+
+betaCoef(ef_obj)
+
+# Access the full and null residuals
+
+resFull(ef_obj)
+resNull(ef_obj)
+
+# Access the fitted values
+
+fitFull(ef_obj)
+fitNull(ef_obj)
+
+plot(ef_obj$fit.full)
+
+```
+
+**Try to make the graph on page 26 of the edge manual**
+
+### Significance Analysis
+
+We are trying to answer the question whether the full model fits the data better than the null model. This will be repeated for each gene. In order to say that the full model fits significantly better than the null model, we need a p-value. We can calculate a p-value using either the likelihood ratio test or the optimal discovery procedure. 
+
+#### The likelihood ratio test (lrt)
+
+```{r}
+# Perform the likelihood ratio test
+de_lrt <- lrt(de_obj, nullDistn = "normal")
+
+# Look at the significance results
+
+summary(de_lrt)
+```
+
+#### The optimal discovery procedure (odp)
+
+The components of "odp":
+
+* bs.its- number of bootstrap iterations
+
+* verbose- prints each bootstrap iteration number
+
+* n.mods- the number of clusters in the k-means algorithm (assigns genes to groups in order to speed up the computational time of the algorithm). If n.mods = the number of genes, then the original ODP is used but small n.mods values will decrease the computational time. It is recommended to use n.mods = 50 because it will cause a negligible loss in power but will ensure a minimal computational time. 
+
+```{r}
+
+# Run odp
+
+de_odp <- odp(de_obj, bs.its = 50, verbose = FALSE, n.mods = 50)
+
+# See the results
+summary(de_odp)
+```
+
+Extract the significance results. We will find the following parts:
+
+* pi0- provides an estimate of the proportion of null p-values
+
+* pvalues- the p-values of the hypothesis that H0 = null model fits the same as the full model for each gene
+
+* qvalues- Since we are performing multiple tests and want to avoid false positives, we will use the estimated q-values.
+
+* lfdr- local false discovery rates
+
+```{r}
+# Extract the significance results
+
+sig_results <- qvalueObj(de_odp)
+
+# See the names of the slots
+names(sig_results)
+
+# Plot the results of the bootstrap
+hist(sig_results)
+
+# Set the fdr level and get a list of genes that meet this fdr cutoff
+
+fdr.level <- 0.1
+sigGenes <- sig_results$qvalues < fdr.level
+```
+
+We can then look at the q-values for each gene. Here we will set the 

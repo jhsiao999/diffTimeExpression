@@ -1,0 +1,30 @@
+---
+title: "time_series_example_maSigPro"
+author: "Lauren Blake"
+date: "July 22, 2016"
+output: html_document
+---
+
+This is an example of using the package maSigPro to find significant gene expression profile differences in time course microarray data
+
+
+```{r}
+# Load the libraries
+
+# source("http://bioconductor.org/biocLite.R")
+# biocLite("maSigPro")
+library("maSigPro")
+
+# Load the data
+
+endotoxin_data <- read.table("~/Dropbox/Scientific Presentations/endotoxin_data.txt", header=TRUE, quote="\"")
+
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
