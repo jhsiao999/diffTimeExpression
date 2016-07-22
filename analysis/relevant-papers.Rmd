@@ -11,11 +11,22 @@ date: 2016-07-21
 source("chunk-options.R")
 ```
 
-## Topic 1
+## Methods
 
-[Storey et al 2005](http://dx.doi.org/10.1073/pnas.0504609102)
+* EDGE by [Storey et al 2005](http://dx.doi.org/10.1073/pnas.0504609102)
+* 
 
-## Topic 2
+
+## Review article
+
+* A broad overview of time course gene expression experiments, from experimental design concerns, computational workflow, to statistical analysis needed for time course experiments. Only a paragraph on differential gene expression analysis. Recommended for learning experimental context of analysis concerns in time course experiments. [Bar-Joseph et al 2012](http://dx.doi.org/10.1038/nrg3244)
+
+* A critical review that focuses on differential expression analysis of time course gene expression data, specifically RNA-seq data, and that identifies contemporary methods and their limitations in addressing biological questions unique to time course experiments. Recommended for a brief and targeted overview. [Oh et al 2014](http://dx.doi.org/10.3389/fgene.2014.00035)
+
+* A critical review that analyzes computational and statistical challenges of contemporary methods for differential expression analysis of RNA-seq time course experiment data. [Spies et al 2015](http://dx.doi.org/10.1016/j.csbj.2015.08.004)
+
+
+
 
 
 ## Topic 3
