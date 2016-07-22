@@ -1,0 +1,20 @@
+---
+title: "Example_papers_using_time_course_RNASeq"
+author: "Lauren Blake"
+date: "July 22, 2016"
+output: html_document
+---
+
+The following are examples of the implementation of the edge software to analyze comparative longitudinal time series RNA-seq data. 
+
+### Wang X et al 2014 
+
+[Wang X et al 2014](http://bmcneurosci.biomedcentral.com/articles/10.1186/1471-2202-15-37) compares gene expression patterns in the hippocampus of one gene, *Glud1* (Glutamate Dehydrogenas 1) in transgenic versus wild type mice. See Figure 6 for a nice output. Also see figures 1, 3, and 4 for hierarchical clustering of genes at different time points.
+
+### Li F et al 2015
+
+[Li F et al 2015](http://pubs.rsc.org/en/Content/ArticleLanding/2015/MB/C5MB00474H#!divAbstract) used edge to identify differentially expressed lncRNAs as well as mRNAs across developmental states. The resulting curves can be found in 4b and 4c and some sample summaries are found in Figure 5 and Figure 6. 
+
+### Scialdone et al 2016 (from John Marioni's lab)
+
+[Scialdone et al 2016](http://www.nature.com/nature/journal/v535/n7611/full/nature18633.html) uses a clustering method to perform expression profiling in single cell data e.g. [Extended Data Figures 3, 6, and 9](http://www.nature.com/nature/journal/v535/n7611/fig_tab/nature18633_ft.html). Do you think that it's worth talking about this?
