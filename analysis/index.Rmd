@@ -20,4 +20,7 @@ title: "Home"
 
 ## Practical examples
 
-* [EDGE](edge-example.html)
+* [EDGE](Example_time_series_example_edge.html)
+* [maSigPro](Example_time_series_example_maSigPro.html)
+* [Comparison of EDGE and maSigPro](Example_times_series_example_comparison.html)
+

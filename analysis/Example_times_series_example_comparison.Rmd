@@ -1,7 +1,20 @@
 ---
 title: "Example_time_series_example_comparison"
-output: html_document
+output:
+  html_document:
+    css: floating-toc.css
+    toc: true
 ---
+
+
+**Last updated:** `r Sys.Date()`
+
+**Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
+
+```{r chunk-options, include=FALSE}
+source("../layout/chunk-options.R")
+```
+
 
 The goal of this section is to compare the results from edge (df = 2) and maSigPro (df = 2) for the endotoxin data.
 
@@ -15,20 +28,19 @@ library("formattable")
 
 # p-values from edge
 
-p_value_endo_genes_edge_data <- read.csv("~/diffTimeExpression/data/p_value_endo_genes_edge_data.txt", sep="")
+p_value_endo_genes_edge_data <- read.csv("../data/p_value_endo_genes_edge_data.txt", sep="")
 
 # p-values from maSigPro (df = 2)
 
-p_value_maSigPro_df_2 <- read.csv("~/diffTimeExpression/data/p_value_maSigPro_df_2.txt", sep="")
+p_value_maSigPro_df_2 <- read.csv("../data/p_value_maSigPro_df_2.txt", sep="")
 
 # p-values from maSigPro (df = 5)
 
-p_value_maSigPro_df_5 <- read.csv("~/diffTimeExpression/data/p_value_maSigPro_df_5.txt", sep="")
-
+p_value_maSigPro_df_5 <- read.csv("../data/p_value_maSigPro_df_5.txt", sep="")
 ```
 
 
-### Compare unadjusted p-values from edge and maSigPro (df= 2)
+## Compare unadjusted p-values from edge and maSigPro (df= 2)
 
 ```{r}
 # Combine the two lists of unadjusted p-values into one data frame
@@ -63,7 +75,7 @@ abline(lm(unadjust_p_value[,1] ~ unadjust_p_value[,2]))
 From this plot, it appears that edge is more conservative than maSigPro when df = 2.
 
 
-### Compare unadjusted p-values from edge and maSigPro (df= 5)
+## Compare unadjusted p-values from edge and maSigPro (df= 5)
 
 ```{r}
 # Combine the two lists of unadjusted p-values into one data frame
@@ -87,7 +99,7 @@ abline(lm(unadjust_p_value[,1] ~ unadjust_p_value[,2]))
 
 The correlation for unadjusted p-values is higher in edge and maSigPro when df = 2 in maSigPro
 
-### Compare Benjamini-Hotchberg corrected p-values from the two software programs
+## Compare Benjamini-Hotchberg corrected p-values from the two software programs
 
 ```{r}
 # Make Benjamini-Hotchberg correction for each set of the unadjusted p-values
@@ -118,7 +130,7 @@ abline(lm(adjusted_p_value[,1] ~ adjusted_p_value[,2]))
 
 ```
 
-### Compare the number of genes at FDR 1% and FDR 10% for both software programs
+## Compare the number of genes at FDR 1% and FDR 10% for both software programs
 
 ```{r}
 # Find the number of significant genes at FDR 1%
@@ -152,9 +164,18 @@ formattable(DF)
 
 
 
-### Compare the number of DE genes
+## Compare the number of DE genes
 
 
 
 
-### Compare the p-values and q-values of the genes that were statistically significant in both programs
+## Compare the p-values and q-values of the genes that were statistically significant in both programs
+
+
+
+## Session information
+
+```{r info, echo = FALSE}
+sessionInfo()
+```
+

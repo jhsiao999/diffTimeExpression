@@ -2,16 +2,28 @@
 title: "edge_time_series_example"
 author: "Lauren Blake"
 date: "July 21, 2016"
-output: html_document
+output:
+  html_document:
+    css: floating-toc.css
+    toc: true
 ---
 
-### Introduction
+**Last updated:** `r Sys.Date()`
+
+**Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
+
+```{r chunk-options, include=FALSE}
+source("../layout/chunk-options.R")
+```
+
+## Introduction
 
 This file is going through the case study for a longitudinal time course experiment. The analysis will be performed using the R package edge from Storey et al. 2005. 
 
 In this endotoxin data set, blood samples were collected from 4 individuals that were given endotoxin and from 4 individuals that were given a placebo. Blood samples were collected before infusion and after 2, 4, 6, 9, and 24 hours. The leukocytes were isolated from the blood samples. **The goal is to identify genes that show "between-class temporal differential expression".**
 
-### Finding the endotoxin data
+
+## Finding the endotoxin data
 
 ```{r}
 # Load time series data package R
@@ -50,7 +62,7 @@ ind <- endotoxin$ind
 time <- endotoxin$time
 ```
 
-### Plot for one gene
+## Plot for one gene
 
 ```{r}
 # Create a graph for the second gene. Note: The expression values from the second gene has endotoxin_class_plot$V5 because the first 3 columns are not expression values. Therefore 3 columns + gene 2 = endotoxin_class_plot$V5
@@ -64,10 +76,10 @@ ggplot(data = endotoxin_class_plot, aes(y = endotoxin_class_plot$V111, x = endot
 # Create a graph for gene 1
 
 ggplot(data = endotoxin_class_plot, aes(y = endotoxin_class_plot$V4, x = endotoxin_class_plot$V2)) + geom_point(aes(color = factor(endotoxin_class_plot$V3, labels = c("Control", "Endotoxin")))) + labs(x = "Time (hours)", y = "Expression", title = "Expression over time for Gene 108") + scale_color_discrete(name = "Group")
-
 ```
 
-### Creating the deSet object that is needed for the full and null models
+
+## Creating the deSet object that is needed for the full and null models
 
 To use the command "build_study" to make the full and null model
 
@@ -80,7 +92,6 @@ Here, we are going to create the null model and then the full model. The null mo
 
 ```{r}
 # Make a covariance matrix
-
 cov <- data.frame(ind = ind, tme = time, grp = class)
 
 head(cov)
@@ -95,8 +106,8 @@ full_model <- ~grp + ns(tme, df = 2, intercept = FALSE) + (grp):ns(tme, df = 2, 
 The command build_models is a deSet object that stores the relevant experimental data. We are going to give it the expression data, the covariance matrix, the full model, and the null model.
 
 This is the different parts of the de_obj (created with the build_models command):
-
-* Null.model- the null model with the adjustment variables (covariates) in the experiment
+  
+  * Null.model- the null model with the adjustment variables (covariates) in the experiment
 * Null.matrix- the null model in the matrix form
 
 * Full.model- the full model with the adjustment variables AND the biological variables of interest
@@ -127,11 +138,11 @@ head(nullMatrix(de_obj))
 head(fullMatrix(de_obj))
 ```
 
-### Fit the data
+## Fit the data
 
 We are going to fit each of the models using least squares. From this, we are going to get the following information:
-
-* fit.full/fit.null- fitted values from the full/null models
+  
+  * fit.full/fit.null- fitted values from the full/null models
 
 * res.fill/res.null- residuals from the full/null model
 
@@ -168,7 +179,7 @@ head(fitNull(ef_obj))
 
 ```
 
-### Visualization of the null and full models (gene 2)
+## Visualization of the null and full models (gene 2)
 
 The goal of this section is to make the graph on page 26 of the edge manual. We will plot the fitted values for the null model and the full model. 
 
@@ -225,7 +236,7 @@ ggplot(data = endotoxin_class_plot, aes(y = endotoxin_class_plot$V5, x = endotox
 ```
 Black curve = null model, Orange and green curves = full model
 
-# Make the plots for gene 108 
+### Make the plots for gene 108 
 
 ```{r}
 # Make the plots for gene 108
@@ -271,7 +282,7 @@ ggplot(data = endotoxin_class_plot, aes(y = endotoxin_class_plot$V111, x = endot
 ```
 
 
-# Make the plots for gene 1
+### Make the plots for gene 1
 
 ```{r}
 # Get the fitted values for the cases
@@ -315,12 +326,12 @@ ggplot(data = endotoxin_class_plot, aes(y = endotoxin_class_plot$V4, x = endotox
 ```
 
 
-
-### Significance Analysis
+## Significance Analysis
 
 We are trying to answer the question whether the full model fits the data better than the null model. This will be repeated for each gene. In order to say that the full model fits significantly better than the null model, we need a p-value. We can calculate a p-value using either the likelihood ratio test or the optimal discovery procedure. 
 
-#### The likelihood ratio test (lrt)
+
+### The likelihood ratio test (lrt)
 
 ```{r}
 # Perform the likelihood ratio test
@@ -331,11 +342,11 @@ de_lrt <- lrt(de_obj, nullDistn = "normal")
 summary(de_lrt)
 ```
 
-#### The optimal discovery procedure (odp)
+### The optimal discovery procedure (odp)
 
 The components of "odp":
-
-* bs.its- number of bootstrap iterations
+  
+  * bs.its- number of bootstrap iterations
 
 * verbose- prints each bootstrap iteration number
 
@@ -351,8 +362,8 @@ summary(de_odp)
 ```
 
 Extract the significance results. We will find the following parts:
-
-* pi0- provides an estimate of the proportion of null p-values
+  
+  * pi0- provides an estimate of the proportion of null p-values
 
 * pvalues- the p-values of the hypothesis that H0 = null model fits the same as the full model for each gene
 
@@ -399,11 +410,17 @@ rownames(q_value_endo_genes_edge) <- c(1:500)
 
 # We are going to save the p-values for edge so that we can later compare the two
 
-write.table(p_value_endo_genes_edge, "~/diffTimeExpression/data/p_value_endo_genes_edge_data.txt", sep="\t")
-
+write.table(p_value_endo_genes_edge, 
+            "../data/p_value_endo_genes_edge_data.txt", sep = "\t")
 # write.table(q_value_endo_genes_edge, "~/diffTimeExpression/data/q_value_endo_genes_edge_data.txt", sep="\t")
-
-
 ```
+
+
+## Session information
+
+```{r info, echo = FALSE}
+sessionInfo()
+```
+
 
 

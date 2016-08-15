@@ -2,8 +2,20 @@
 title: "time_series_example_maSigPro"
 author: "Lauren Blake"
 date: "July 22, 2016"
-output: html_document
+output:
+  html_document:
+    css: floating-toc.css
+    toc: true
 ---
+
+**Last updated:** `r Sys.Date()`
+
+**Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
+
+```{r chunk-options, include=FALSE}
+source("../layout/chunk-options.R")
+```
+
 
 This is an example of using the package maSigPro. It was originally created to find significant gene expression profile differences in time course microarray data. It was later revised to be able to run on expression data from RNA-seq (see http://www.ncbi.nlm.nih.gov/pubmed/16481333 and http://www.ncbi.nlm.nih.gov/pubmed/24894503, respectively). 
 
@@ -17,21 +29,21 @@ library("maSigPro")
 
 # Load the data
 
-  # From the maSigPro vignette
+# From the maSigPro vignette
 data(NBdata)
 head(NBdata)
 data(NBdesign)
 head(NBdesign)
 
-  # We will also run this using the endotoxin_data from the edge vignette
+# We will also run this using the endotoxin_data from the edge vignette
 
-endotoxin_data <- read.delim("~/diffTimeExpression/data/endotoxin_data.txt")
-
+endotoxin_data <- read.delim("../data/endotoxin_data.txt")
 ```
 
-### Using the maSigPro vignette
-```{r}
 
+## Using the maSigPro vignette
+
+```{r}
 # Make a design matrix
 
 d <- make.design.matrix(NBdesign)
@@ -102,9 +114,10 @@ PlotGroups(Gene1, edesign = NBdesign, show.fit = T, dis = d$dis, groups.vector =
 
 ```
 
-### Using the endotoxin data
+## Using the endotoxin data
 
-#### Make the endotoxin data in the same format as the NBdata and NBdesign
+### Make the endotoxin data in the same format as the NBdata and NBdesign
+
 ```{r}
 
 # Change endotoxin data at the onset so that controls are listed first and cases are listed second
@@ -164,7 +177,7 @@ rownames(final_endo_design) <- c("G1.T1.1", "G1.T2.1", "G1.T6.1", "G1.T3.1","G1.
 
 ```
 
-#### Make design matrix using maSigPro commands
+### Make design matrix using maSigPro commands
 
 ```{r}
 # Make a design matrix of values. It will generate values for different values of time and the interaction of time and group (0 iif control and time^n*1 iif case). The default here is to make df = 2; however, since we have 6 time points, we could go up to degree = 5 (# of time points - 1, as discussed in the maSigPro User's Guide page 5)
@@ -184,7 +197,7 @@ matrix_endo_design$groups.vector
 
 ```
 
-#### Find significant genes
+### Find significant genes
 
 This step identifies the significant genes by computing a regression fit for each gene and also the p-value associated with the F-statistic of the model. We can then set our threshold for significant genes. 
 
@@ -195,13 +208,18 @@ This step identifies the significant genes by computing a regression fit for eac
 
 # Compute a regression fit for each gene. Comupte a p-value associated with the F-statistic of the model (FDR = 10%). Note, it fits regression models for each gene but in "batches" of 100 genes. 
 
-endo_p_vector <- p.vector(t_endo_data, matrix_endo_design, counts = TRUE, theta = 10, Q = 0.10, MT.adjust = "BH")
+endo_p_vector <- p.vector(t_endo_data, 
+                          matrix_endo_design, 
+                          counts = TRUE, theta = 10, Q = 0.10, MT.adjust = "BH")
 
 # Save unadjusted p-values for comparison
-
 head(endo_p_vector$p.vector)
 
-write.table(endo_p_vector$p.vector, "~/diffTimeExpression/data/p_value_maSigPro_df_5.txt", sep="\t")
+# svae output if output has not been saved already
+if (!file.exists("../data/p_value_maSigPro_df_5.txt")) {
+write.table(endo_p_vector$p.vector, 
+            "../data/p_value_maSigPro_df_5.txt", sep="\t")
+}
 
 
 # Find the number of significant genes at FDR 10%
@@ -223,7 +241,7 @@ head(endo_p_vector$SELEC)
 
 ```
 
-### Find the significant coefficients for the significant genes (stepwise regression)
+## Find the significant coefficients for the significant genes (stepwise regression)
 
 The significant genes were identified in the previous section. We can now apply a variable selection procedure to find the significant variables for each gene. This can mean that there is a different number of significant coefficients and therefore a different model for each gene. The author's highlight the flexibility of the method in their paper introducing this package. 
 
@@ -262,9 +280,9 @@ endo_sig_genes$summary$Group.2vsGroup.1
 
 ```
 
-### Plotting with maSigPro
-```{r}
+## Plotting with maSigPro
 
+```{r}
 # Group into 4 clusters 
 
 #(Note: this generates an X11() error when run on Midway but when run on a local computer or cluster that allows for a pop-up window in R, it can generate plots that have show the general patterns of the clusters)
@@ -301,9 +319,10 @@ PlotGroups(Gene1, edesign = final_endo_design, show.fit = T, dis = matrix_endo_d
 
 ```
 
-#### Test if theta = 10 is a good approximation using edgeR
+### Test if theta = 10 is a good approximation using edgeR
 
-### Compare results from maSigPro when degree = 2 and degree = 5
+
+## Compare results from maSigPro when degree = 2 and degree = 5
 
 The goal of this section is to explore the extent to which the choice of degree number affects the results. In the above analysis, we degree = 5 because this is the total # of timepoints - 1. Now, we are going to compare degree = 5 with degree = 2 because we want to avoid potential overfitting. 
 
@@ -328,14 +347,16 @@ matrix_endo_design$groups.vector
 endo_p_vector <- p.vector(t_endo_data, matrix_endo_design, counts = TRUE, theta = 10, Q = 0.10, MT.adjust = "BH")
 
 # Record unadjusted p-values 
-
 head(endo_p_vector$p.vector)
 
-write.table(endo_p_vector$p.vector, "~/diffTimeExpression/data/p_value_maSigPro_df_2.txt", sep="\t")
+# save output if output has not been saved already
+if (!file.exists("../data/p_value_maSigPro_df_2.txt")) {
+  write.table(endo_p_vector$p.vector, 
+              "../data/p_value_maSigPro_df_2.txt", sep="\t")
+}
 
 
 # Find the number of significant genes at FDR 10%
-
 endo_p_vector$i
 
 # Find the p-value (of the F statistic of the model) at the 10% false discovery control level
@@ -372,7 +393,7 @@ endo_sig_genes$summary$Group.2vsGroup.1
 
 ```
 
-### Visualization with df = 2
+## Visualization with df = 2
 
 ```{r}
 # Gene 2
@@ -391,25 +412,26 @@ Gene1 <- t_endo_data[rownames(t_endo_data) == "1", ]
 PlotGroups(Gene1, edesign = final_endo_design, show.fit = T, dis = matrix_endo_design$dis, groups.vector = matrix_endo_design$groups.vector, show.lines = F)
 ```
 
-### Compare unadjusted p-value for df = 5 and df = 2
+## Compare unadjusted p-value for df = 5 and df = 2
 
 ```{r}
 # Obtain unadjusted p-values when df = 2 and when df = 5
 
-p_value_maSigPro_df_2 <- read.csv("~/diffTimeExpression/data/p_value_maSigPro_df_2.txt", sep="")
+p_value_maSigPro_df_2 <- read.csv("../data/p_value_maSigPro_df_2.txt", sep="")
 
 p_value_maSigPro_df_2 <- as.data.frame(p_value_maSigPro_df_2)
 
 dim(p_value_maSigPro_df_2)
 
-p_value_maSigPro_df_5 <- read.csv("~/diffTimeExpression/data/p_value_maSigPro_df_5.txt", sep="")
+p_value_maSigPro_df_5 <- read.csv("../data/p_value_maSigPro_df_5.txt", sep="")
 
 p_value_maSigPro_df_5 <- as.data.frame(p_value_maSigPro_df_5)
 
 dim(p_value_maSigPro_df_5)
 
 p_value_maSigPro <- cbind(p_value_maSigPro_df_2, p_value_maSigPro_df_5)
-colnames(p_value_maSigPro) <- c("Unadjusted p-value when df = 2", "Unadjusted p-value when df = 5")
+colnames(p_value_maSigPro) <- c("Unadjusted p-value when df = 2", 
+                                "Unadjusted p-value when df = 5")
 
 # Correlations with significance levels
 library(Hmisc)
@@ -428,15 +450,18 @@ flattenCorrMatrix <- function(cormat, pmat) {
 flattenCorrMatrix(rc$r, rc$P)
 
 # Compare unadjusted p-values from df = 2 and df = 5
-
-plot(p_value_maSigPro, main = "Unadjusted p-values from maSigPro (Pearson's corr. = 0.716)")
+plot(p_value_maSigPro, 
+     main = "Unadjusted p-values from maSigPro (Pearson's corr. = 0.716)")
 
 # Make a best fit line (which we can then add to the plot)
 abline(lm(p_value_maSigPro[,1] ~ p_value_maSigPro[,2]))
+```
 
 
+## Session information
 
-
+```{r info, echo = FALSE}
+sessionInfo()
 ```
 
 

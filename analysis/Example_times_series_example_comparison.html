@@ -102,6 +102,7 @@ h6 {
 }
 </style>
 
+<link rel="stylesheet" href="floating-toc.css" type="text/css" />
 
 </head>
 
@@ -183,39 +184,42 @@ $(document).ready(function () {
 <li><a href="#compare-the-number-of-genes-at-fdr-1-and-fdr-10-for-both-software-programs">Compare the number of genes at FDR 1% and FDR 10% for both software programs</a></li>
 <li><a href="#compare-the-number-of-de-genes">Compare the number of DE genes</a></li>
 <li><a href="#compare-the-p-values-and-q-values-of-the-genes-that-were-statistically-significant-in-both-programs">Compare the p-values and q-values of the genes that were statistically significant in both programs</a></li>
+<li><a href="#session-information">Session information</a></li>
 </ul>
 </div>
 
+<p><strong>Last updated:</strong> 2016-08-15</p>
+<p><strong>Code version:</strong> b0cbf73e3db9ca70711a8c6aa8472d4d2e76d7c2</p>
 <p>The goal of this section is to compare the results from edge (df = 2) and maSigPro (df = 2) for the endotoxin data.</p>
 <pre class="r"><code># Load libraries
 
 library(&quot;Hmisc&quot;)</code></pre>
-<pre><code>## Loading required package: lattice</code></pre>
-<pre><code>## Loading required package: survival</code></pre>
-<pre><code>## Loading required package: Formula</code></pre>
-<pre><code>## Loading required package: ggplot2</code></pre>
-<pre><code>## 
-## Attaching package: &#39;Hmisc&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     format.pval, round.POSIXt, trunc.POSIXt, units</code></pre>
+<pre><code>Loading required package: lattice</code></pre>
+<pre><code>Loading required package: survival</code></pre>
+<pre><code>Loading required package: Formula</code></pre>
+<pre><code>Loading required package: ggplot2</code></pre>
+<pre><code>
+Attaching package: &#39;Hmisc&#39;</code></pre>
+<pre><code>The following objects are masked from &#39;package:base&#39;:
+
+    format.pval, round.POSIXt, trunc.POSIXt, units</code></pre>
 <pre class="r"><code>library(&quot;formattable&quot;)
 
 # Load data
 
 # p-values from edge
 
-p_value_endo_genes_edge_data &lt;- read.csv(&quot;~/diffTimeExpression/data/p_value_endo_genes_edge_data.txt&quot;, sep=&quot;&quot;)
+p_value_endo_genes_edge_data &lt;- read.csv(&quot;../data/p_value_endo_genes_edge_data.txt&quot;, sep=&quot;&quot;)
 
 # p-values from maSigPro (df = 2)
 
-p_value_maSigPro_df_2 &lt;- read.csv(&quot;~/diffTimeExpression/data/p_value_maSigPro_df_2.txt&quot;, sep=&quot;&quot;)
+p_value_maSigPro_df_2 &lt;- read.csv(&quot;../data/p_value_maSigPro_df_2.txt&quot;, sep=&quot;&quot;)
 
 # p-values from maSigPro (df = 5)
 
-p_value_maSigPro_df_5 &lt;- read.csv(&quot;~/diffTimeExpression/data/p_value_maSigPro_df_5.txt&quot;, sep=&quot;&quot;)</code></pre>
-<div id="compare-unadjusted-p-values-from-edge-and-masigpro-df-2" class="section level3">
-<h3>Compare unadjusted p-values from edge and maSigPro (df= 2)</h3>
+p_value_maSigPro_df_5 &lt;- read.csv(&quot;../data/p_value_maSigPro_df_5.txt&quot;, sep=&quot;&quot;)</code></pre>
+<div id="compare-unadjusted-p-values-from-edge-and-masigpro-df-2" class="section level2">
+<h2>Compare unadjusted p-values from edge and maSigPro (df= 2)</h2>
 <pre class="r"><code># Combine the two lists of unadjusted p-values into one data frame
 unadjust_p_value &lt;- as.data.frame(cbind(p_value_endo_genes_edge_data, p_value_maSigPro_df_2))
 colnames(unadjust_p_value) &lt;- c(&quot;Unadjusted p-value in edge (df = 2)&quot;, &quot;Unadjusted p-value in maSigPro (df = 2)&quot;)
@@ -235,21 +239,21 @@ flattenCorrMatrix &lt;- function(cormat, pmat) {
 }
 
 flattenCorrMatrix(rc$r, rc$P)</code></pre>
-<pre><code>##                                   row
-## 1 Unadjusted p-value in edge (df = 2)
-##                                    column       cor            p
-## 1 Unadjusted p-value in maSigPro (df = 2) 0.3511001 4.440892e-16</code></pre>
+<pre><code>                                  row
+1 Unadjusted p-value in edge (df = 2)
+                                   column       cor p
+1 Unadjusted p-value in maSigPro (df = 2) 0.3731325 0</code></pre>
 <pre class="r"><code># Compare unadjusted p-values from edge and maSigPro
 
 plot(unadjust_p_value, main = &quot;Unadjusted p-values from edge and maSigPro (Pearson&#39;s correlation = 0.377)&quot;)
 
 # Make a best fit line (which we can then add to the plot)
 abline(lm(unadjust_p_value[,1] ~ unadjust_p_value[,2]))</code></pre>
-<p><img src="Example_times_series_example_comparison_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p><img src="figure/Example_times_series_example_comparison.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>From this plot, it appears that edge is more conservative than maSigPro when df = 2.</p>
 </div>
-<div id="compare-unadjusted-p-values-from-edge-and-masigpro-df-5" class="section level3">
-<h3>Compare unadjusted p-values from edge and maSigPro (df= 5)</h3>
+<div id="compare-unadjusted-p-values-from-edge-and-masigpro-df-5" class="section level2">
+<h2>Compare unadjusted p-values from edge and maSigPro (df= 5)</h2>
 <pre class="r"><code># Combine the two lists of unadjusted p-values into one data frame
 unadjust_p_value &lt;- as.data.frame(cbind(p_value_endo_genes_edge_data, p_value_maSigPro_df_5))
 colnames(unadjust_p_value) &lt;- c(&quot;Unadjusted p-values in edge (df = 2)&quot;, &quot;Unadjusted p-values in maSigPro (df = 5)&quot;)
@@ -259,31 +263,31 @@ colnames(unadjust_p_value) &lt;- c(&quot;Unadjusted p-values in edge (df = 2)&qu
 rc &lt;- rcorr(as.matrix(unadjust_p_value), type=&quot;pearson&quot;) # Correlation = 0.3235 and p = 1.203482e-13
 
 flattenCorrMatrix(rc$r, rc$P)</code></pre>
-<pre><code>##                                    row
-## 1 Unadjusted p-values in edge (df = 2)
-##                                     column       cor            p
-## 1 Unadjusted p-values in maSigPro (df = 5) 0.3078247 1.956657e-12</code></pre>
+<pre><code>                                   row
+1 Unadjusted p-values in edge (df = 2)
+                                    column       cor            p
+1 Unadjusted p-values in maSigPro (df = 5) 0.3092628 1.525891e-12</code></pre>
 <pre class="r"><code># Compare unadjusted p-values from edge and maSigPro
 
 plot(unadjust_p_value, main = &quot;Unadjusted p-values from edge and maSigPro (Pearson&#39;s correlation = 0.324)&quot;)
 
 # Make a best fit line (which we can then add to the plot)
 abline(lm(unadjust_p_value[,1] ~ unadjust_p_value[,2]))</code></pre>
-<p><img src="Example_times_series_example_comparison_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p><img src="figure/Example_times_series_example_comparison.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>The correlation for unadjusted p-values is higher in edge and maSigPro when df = 2 in maSigPro</p>
 </div>
-<div id="compare-benjamini-hotchberg-corrected-p-values-from-the-two-software-programs" class="section level3">
-<h3>Compare Benjamini-Hotchberg corrected p-values from the two software programs</h3>
+<div id="compare-benjamini-hotchberg-corrected-p-values-from-the-two-software-programs" class="section level2">
+<h2>Compare Benjamini-Hotchberg corrected p-values from the two software programs</h2>
 <pre class="r"><code># Make Benjamini-Hotchberg correction for each set of the unadjusted p-values
 
 edge_fdr &lt;- p.adjust(as.matrix(p_value_endo_genes_edge_data), method = &quot;fdr&quot;, n = 500)
 summary(edge_fdr)</code></pre>
-<pre><code>##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-## 0.001667 0.338500 0.731800 0.590800 0.871500 0.995300</code></pre>
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.0020  0.3516  0.7410  0.6041  0.8742  0.9994 </code></pre>
 <pre class="r"><code>maSigPro_fdr &lt;- p.adjust(as.matrix(p_value_maSigPro_df_2), method = &quot;fdr&quot;, n = 500)
 summary(maSigPro_fdr)</code></pre>
-<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-## 0.00000 0.00473 0.21460 0.34890 0.67860 0.99660</code></pre>
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+0.00000 0.00473 0.21460 0.34890 0.67860 0.99660 </code></pre>
 <pre class="r"><code># Combine the two lists of adjusted p-values into one data frame
 
 adjusted_p_value &lt;- as.data.frame(cbind(edge_fdr, maSigPro_fdr))
@@ -294,42 +298,42 @@ colnames(adjusted_p_value) &lt;- c(&quot;BH adjusted p-values in edge (df = 2)&q
 rc &lt;- rcorr(as.matrix(adjusted_p_value), type=&quot;pearson&quot;) # Correlation = 0.4421 and p equals approximately 0
 
 flattenCorrMatrix(rc$r, rc$P)</code></pre>
-<pre><code>##                                     row
-## 1 BH adjusted p-values in edge (df = 2)
-##                                      column       cor p
-## 1 BH adjusted p-values in maSigPro (df = 2) 0.4093033 0</code></pre>
+<pre><code>                                    row
+1 BH adjusted p-values in edge (df = 2)
+                                     column       cor p
+1 BH adjusted p-values in maSigPro (df = 2) 0.4349943 0</code></pre>
 <pre class="r"><code># Compare unadjusted p-values from edge and maSigPro
 
 plot(adjusted_p_value, main = &quot;BH adjusted p-values from edge and maSigPro (Pearson&#39;s corr. = 0.4421)&quot;)
 
 # Make a best fit line (which we can then add to the plot)
 abline(lm(adjusted_p_value[,1] ~ adjusted_p_value[,2]))</code></pre>
-<p><img src="Example_times_series_example_comparison_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p><img src="figure/Example_times_series_example_comparison.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
-<div id="compare-the-number-of-genes-at-fdr-1-and-fdr-10-for-both-software-programs" class="section level3">
-<h3>Compare the number of genes at FDR 1% and FDR 10% for both software programs</h3>
+<div id="compare-the-number-of-genes-at-fdr-1-and-fdr-10-for-both-software-programs" class="section level2">
+<h2>Compare the number of genes at FDR 1% and FDR 10% for both software programs</h2>
 <pre class="r"><code># Find the number of significant genes at FDR 1%
 
 length(edge_fdr[edge_fdr&lt;=0.01]) # 10 genes</code></pre>
-<pre><code>## [1] 20</code></pre>
+<pre><code>[1] 19</code></pre>
 <pre class="r"><code>length(maSigPro_fdr[maSigPro_fdr&lt;=0.01]) #135 genes</code></pre>
-<pre><code>## [1] 135</code></pre>
+<pre><code>[1] 135</code></pre>
 <pre class="r"><code># Find overlap
 
 overlap_0.01 &lt;- adjusted_p_value[adjusted_p_value[,1] &lt;= 0.01 &amp; adjusted_p_value[,2] &lt;= 0.01, ]
 
 nrow(overlap_0.01)</code></pre>
-<pre><code>## [1] 18</code></pre>
+<pre><code>[1] 18</code></pre>
 <pre class="r"><code># Find the number of significant genes at FDR 10%
 
 length(edge_fdr[edge_fdr&lt;=0.1]) #61 genes</code></pre>
-<pre><code>## [1] 61</code></pre>
+<pre><code>[1] 65</code></pre>
 <pre class="r"><code>length(maSigPro_fdr[maSigPro_fdr&lt;=0.1]) # 196 genes</code></pre>
-<pre><code>## [1] 196</code></pre>
+<pre><code>[1] 196</code></pre>
 <pre class="r"><code>overlap_0.1 &lt;- adjusted_p_value[adjusted_p_value[,1] &lt;= 0.1 &amp; adjusted_p_value[,2] &lt;= 0.1, ]
 
 nrow(overlap_0.1)</code></pre>
-<pre><code>## [1] 54</code></pre>
+<pre><code>[1] 56</code></pre>
 <pre class="r"><code># Make a table of the results
 
 DF &lt;- data.frame(Program=c(&quot;edge&quot;, &quot;maSigPro&quot;, &quot;Genes in common&quot;), FDR_0.01=c(&quot;10&quot;, &quot;135&quot;, &quot;10&quot;), FDR_0.1=c(&quot;61&quot;, &quot;196&quot;, &quot;55&quot;))
@@ -385,11 +389,40 @@ Genes in common
 </tbody>
 </table>
 </div>
-<div id="compare-the-number-of-de-genes" class="section level3">
-<h3>Compare the number of DE genes</h3>
+<div id="compare-the-number-of-de-genes" class="section level2">
+<h2>Compare the number of DE genes</h2>
 </div>
-<div id="compare-the-p-values-and-q-values-of-the-genes-that-were-statistically-significant-in-both-programs" class="section level3">
-<h3>Compare the p-values and q-values of the genes that were statistically significant in both programs</h3>
+<div id="compare-the-p-values-and-q-values-of-the-genes-that-were-statistically-significant-in-both-programs" class="section level2">
+<h2>Compare the p-values and q-values of the genes that were statistically significant in both programs</h2>
+</div>
+<div id="session-information" class="section level2">
+<h2>Session information</h2>
+<pre><code>R Under development (unstable) (2016-03-11 r70310)
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+Running under: OS X 10.10.5 (Yosemite)
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] formattable_0.2.0.1 Hmisc_3.17-4        ggplot2_2.1.0      
+[4] Formula_1.2-1       survival_2.39-5     lattice_0.20-33    
+[7] knitr_1.14         
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_0.12.6         cluster_2.0.4       magrittr_1.5       
+ [4] splines_3.3.0       munsell_0.4.3       colorspace_1.2-6   
+ [7] stringr_1.0.0       plyr_1.8.4          tools_3.3.0        
+[10] nnet_7.3-12         grid_3.3.0          data.table_1.9.6   
+[13] gtable_0.2.0        latticeExtra_0.6-28 htmltools_0.3.5    
+[16] yaml_2.1.13         digest_0.6.10       Matrix_1.2-6       
+[19] gridExtra_2.2.1     RColorBrewer_1.1-2  formatR_1.4        
+[22] htmlwidgets_0.7     acepack_1.3-3.3     rpart_4.1-10       
+[25] evaluate_0.9        rmarkdown_1.0       stringi_1.1.1      
+[28] scales_0.4.0        chron_2.3-47        foreign_0.8-66     </code></pre>
 </div>
 
 
