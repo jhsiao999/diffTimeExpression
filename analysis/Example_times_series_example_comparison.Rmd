@@ -1,0 +1,160 @@
+---
+title: "Example_time_series_example_comparison"
+output: html_document
+---
+
+The goal of this section is to compare the results from edge (df = 2) and maSigPro (df = 2) for the endotoxin data.
+
+```{r}
+# Load libraries
+
+library("Hmisc")
+library("formattable")
+
+# Load data
+
+# p-values from edge
+
+p_value_endo_genes_edge_data <- read.csv("~/diffTimeExpression/data/p_value_endo_genes_edge_data.txt", sep="")
+
+# p-values from maSigPro (df = 2)
+
+p_value_maSigPro_df_2 <- read.csv("~/diffTimeExpression/data/p_value_maSigPro_df_2.txt", sep="")
+
+# p-values from maSigPro (df = 5)
+
+p_value_maSigPro_df_5 <- read.csv("~/diffTimeExpression/data/p_value_maSigPro_df_5.txt", sep="")
+
+```
+
+
+### Compare unadjusted p-values from edge and maSigPro (df= 2)
+
+```{r}
+# Combine the two lists of unadjusted p-values into one data frame
+unadjust_p_value <- as.data.frame(cbind(p_value_endo_genes_edge_data, p_value_maSigPro_df_2))
+colnames(unadjust_p_value) <- c("Unadjusted p-value in edge (df = 2)", "Unadjusted p-value in maSigPro (df = 2)")
+
+# Find the correlation between the two numbers
+
+rc <- rcorr(as.matrix(unadjust_p_value), type="pearson") # Correlation = 0.3766195 and p = approximately 0
+
+flattenCorrMatrix <- function(cormat, pmat) {
+  ut <- upper.tri(cormat)
+  data.frame(
+    row = rownames(cormat)[row(cormat)[ut]],
+    column = rownames(cormat)[col(cormat)[ut]],
+    cor  =(cormat)[ut],
+    p = pmat[ut]
+    )
+}
+
+flattenCorrMatrix(rc$r, rc$P)
+
+# Compare unadjusted p-values from edge and maSigPro
+
+plot(unadjust_p_value, main = "Unadjusted p-values from edge and maSigPro (Pearson's correlation = 0.377)")
+
+# Make a best fit line (which we can then add to the plot)
+abline(lm(unadjust_p_value[,1] ~ unadjust_p_value[,2]))
+
+```
+
+From this plot, it appears that edge is more conservative than maSigPro when df = 2.
+
+
+### Compare unadjusted p-values from edge and maSigPro (df= 5)
+
+```{r}
+# Combine the two lists of unadjusted p-values into one data frame
+unadjust_p_value <- as.data.frame(cbind(p_value_endo_genes_edge_data, p_value_maSigPro_df_5))
+colnames(unadjust_p_value) <- c("Unadjusted p-values in edge (df = 2)", "Unadjusted p-values in maSigPro (df = 5)")
+
+# Find the correlation between the two numbers
+
+rc <- rcorr(as.matrix(unadjust_p_value), type="pearson") # Correlation = 0.3235 and p = 1.203482e-13
+
+flattenCorrMatrix(rc$r, rc$P)
+
+# Compare unadjusted p-values from edge and maSigPro
+
+plot(unadjust_p_value, main = "Unadjusted p-values from edge and maSigPro (Pearson's correlation = 0.324)")
+
+# Make a best fit line (which we can then add to the plot)
+abline(lm(unadjust_p_value[,1] ~ unadjust_p_value[,2]))
+
+```
+
+The correlation for unadjusted p-values is higher in edge and maSigPro when df = 2 in maSigPro
+
+### Compare Benjamini-Hotchberg corrected p-values from the two software programs
+
+```{r}
+# Make Benjamini-Hotchberg correction for each set of the unadjusted p-values
+
+edge_fdr <- p.adjust(as.matrix(p_value_endo_genes_edge_data), method = "fdr", n = 500)
+summary(edge_fdr)
+
+maSigPro_fdr <- p.adjust(as.matrix(p_value_maSigPro_df_2), method = "fdr", n = 500)
+summary(maSigPro_fdr)
+
+# Combine the two lists of adjusted p-values into one data frame
+
+adjusted_p_value <- as.data.frame(cbind(edge_fdr, maSigPro_fdr))
+colnames(adjusted_p_value) <- c("BH adjusted p-values in edge (df = 2)", "BH adjusted p-values in maSigPro (df = 2)")
+
+# Find the correlation between the two numbers
+
+rc <- rcorr(as.matrix(adjusted_p_value), type="pearson") # Correlation = 0.4421 and p equals approximately 0
+
+flattenCorrMatrix(rc$r, rc$P)
+
+# Compare unadjusted p-values from edge and maSigPro
+
+plot(adjusted_p_value, main = "BH adjusted p-values from edge and maSigPro (Pearson's corr. = 0.4421)")
+
+# Make a best fit line (which we can then add to the plot)
+abline(lm(adjusted_p_value[,1] ~ adjusted_p_value[,2]))
+
+```
+
+### Compare the number of genes at FDR 1% and FDR 10% for both software programs
+
+```{r}
+# Find the number of significant genes at FDR 1%
+
+length(edge_fdr[edge_fdr<=0.01]) # 10 genes
+length(maSigPro_fdr[maSigPro_fdr<=0.01]) #135 genes
+
+# Find overlap
+
+overlap_0.01 <- adjusted_p_value[adjusted_p_value[,1] <= 0.01 & adjusted_p_value[,2] <= 0.01, ]
+
+nrow(overlap_0.01)
+
+# Find the number of significant genes at FDR 10%
+
+length(edge_fdr[edge_fdr<=0.1]) #61 genes
+length(maSigPro_fdr[maSigPro_fdr<=0.1]) # 196 genes
+
+overlap_0.1 <- adjusted_p_value[adjusted_p_value[,1] <= 0.1 & adjusted_p_value[,2] <= 0.1, ]
+
+nrow(overlap_0.1)
+
+# Make a table of the results
+
+DF <- data.frame(Program=c("edge", "maSigPro", "Genes in common"), FDR_0.01=c("10", "135", "10"), FDR_0.1=c("61", "196", "55"))
+formattable(DF)
+
+```
+
+
+
+
+
+### Compare the number of DE genes
+
+
+
+
+### Compare the p-values and q-values of the genes that were statistically significant in both programs

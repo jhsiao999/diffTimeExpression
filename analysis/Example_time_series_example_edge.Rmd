@@ -1,0 +1,409 @@
+---
+title: "edge_time_series_example"
+author: "Lauren Blake"
+date: "July 21, 2016"
+output: html_document
+---
+
+### Introduction
+
+This file is going through the case study for a longitudinal time course experiment. The analysis will be performed using the R package edge from Storey et al. 2005. 
+
+In this endotoxin data set, blood samples were collected from 4 individuals that were given endotoxin and from 4 individuals that were given a placebo. Blood samples were collected before infusion and after 2, 4, 6, 9, and 24 hours. The leukocytes were isolated from the blood samples. **The goal is to identify genes that show "between-class temporal differential expression".**
+
+### Finding the endotoxin data
+
+```{r}
+# Load time series data package R
+
+# source("https://bioconductor.org/biocLite.R")
+# biocLite("edge")
+library("edge")
+library("ggplot2")
+library("splines")
+
+# Import the data
+
+data(endotoxin)
+
+# Look at the different components of the data
+head(endotoxin$class) # Stating whether control or endotoxin
+head(endotoxin$endoexpr) # This is a data frame of expression. The columns correspond to time points 1-6 for each person. For example, columns 1-6 are for individual 1 at time points 0, 2, 4, 6, and 24 hours. The rows correspond to the gene expression for 500 genes
+head(endotoxin$ind) # Individuals 1-8
+head(endotoxin$time) # Time points for each of the individuals
+
+# Rearrange endotoxin so it is easier to work with when plotting
+endotoxin_class <- rbind(endotoxin$ind, endotoxin$time, endotoxin$class, endotoxin$endoexpr)
+endotoxin_class <- as.data.frame(endotoxin_class)
+endotoxin_class_plot <- t(endotoxin_class)
+endotoxin_class_plot <- as.data.frame(endotoxin_class_plot)
+
+# At this point, I will save endotoxin_class_plot as a .txt file. This allows us to use the same data in other files. We only need to run this once to then just save in the /data folder. 
+
+# endotoxin_data <- write.table(endotoxin_class_plot, "~/diffTimeExpression/data/endotoxin_data.txt", sep="\t")
+
+# In endotoxin_class, the first column is individual, the second is time, the third is endotoxin status (2 = endotoxin, 1 = control), and columns 4-503 is genes 1-500. 
+
+endoexpr <- endotoxin$endoexpr
+class <- endotoxin$class
+ind <- endotoxin$ind
+time <- endotoxin$time
+```
+
+### Plot for one gene
+
+```{r}
+# Create a graph for the second gene. Note: The expression values from the second gene has endotoxin_class_plot$V5 because the first 3 columns are not expression values. Therefore 3 columns + gene 2 = endotoxin_class_plot$V5
+
+ggplot(data = endotoxin_class_plot, aes(y = endotoxin_class_plot$V5, x = endotoxin_class_plot$V2)) + geom_point(aes(color = factor(endotoxin_class_plot$V3, labels = c("Control", "Endotoxin")))) + labs(x = "Time (hours)", y = "Expression", title = "Expression over time for Gene 2") + scale_color_discrete(name = "Group") 
+
+# Create a graph for gene 108
+
+ggplot(data = endotoxin_class_plot, aes(y = endotoxin_class_plot$V111, x = endotoxin_class_plot$V2)) + geom_point(aes(color = factor(endotoxin_class_plot$V3, labels = c("Control", "Endotoxin")))) + labs(x = "Time (hours)", y = "Expression", title = "Expression over time for Gene 108") + scale_color_discrete(name = "Group")
+
+# Create a graph for gene 1
+
+ggplot(data = endotoxin_class_plot, aes(y = endotoxin_class_plot$V4, x = endotoxin_class_plot$V2)) + geom_point(aes(color = factor(endotoxin_class_plot$V3, labels = c("Control", "Endotoxin")))) + labs(x = "Time (hours)", y = "Expression", title = "Expression over time for Gene 108") + scale_color_discrete(name = "Group")
+
+```
+
+### Creating the deSet object that is needed for the full and null models
+
+To use the command "build_study" to make the full and null model
+
+* grp is for the group (endotoxin or control)
+* tme is for time (hours 0, 2, 4, 6, 9, and 24)
+* ind is for the sample name (ind 1-8)
+* sampling is for the type of experiment (timecourse)
+
+Here, we are going to create the null model and then the full model. The null model uses the data from both groups to generate the B-spline basis matrix for a natural cubic spline. The full model will generate separate B-spline basis matrices (each for a natural cubic spline) for the endotoxin and control groups. 
+
+```{r}
+# Make a covariance matrix
+
+cov <- data.frame(ind = ind, tme = time, grp = class)
+
+head(cov)
+
+# Null model: make the basis matrix for natural cubic splines
+null_model <- ~grp + ns(tme, df = 2, intercept = FALSE)
+
+# Full model: make the basis matrix for natural cubic splines
+full_model <- ~grp + ns(tme, df = 2, intercept = FALSE) + (grp):ns(tme, df = 2, intercept = FALSE)
+```
+
+The command build_models is a deSet object that stores the relevant experimental data. We are going to give it the expression data, the covariance matrix, the full model, and the null model.
+
+This is the different parts of the de_obj (created with the build_models command):
+
+* Null.model- the null model with the adjustment variables (covariates) in the experiment
+* Null.matrix- the null model in the matrix form
+
+* Full.model- the full model with the adjustment variables AND the biological variables of interest
+* Full.matrix- the full model in the matrix form
+
+* Ind- contains the individuals
+* qvalueObj- contains p-values, q-values, and local false discovery rates for the significance of analysis
+
+```{r}
+de_obj <- build_models(data = endoexpr, cov = cov, full.model = full_model, null.model = null_model)
+
+slotNames(de_obj)
+
+summary(de_obj)
+
+# Extract different parts of de_obj (from build_models)
+
+# Access the expression values
+head(exprs(de_obj))
+
+# Access the covariates
+head(pData(de_obj))
+
+# Access the matrix for the null model
+head(nullMatrix(de_obj))
+
+# Access the matrix for the full model
+head(fullMatrix(de_obj))
+```
+
+### Fit the data
+
+We are going to fit each of the models using least squares. From this, we are going to get the following information:
+
+* fit.full/fit.null- fitted values from the full/null models
+
+* res.fill/res.null- residuals from the full/null model
+
+* dH.full- diagonal elements in the projection matrix for the full model
+
+* beta.coef- the coefficients for the full model
+
+* stat.type- the statistic type used (either the likelihood ratio test or the optimal discovery procedure). I will talk about the different statistics in the next section.
+
+```{r}
+# Fit the null and full models
+
+ef_obj <- fit_models(de_obj, stat.type = "lrt")
+
+# Look at the data
+
+summary(ef_obj)
+
+
+# Access the fitted coefficients of the full model
+
+head(betaCoef(ef_obj))
+
+# Access the full and null residuals
+
+head(resFull(ef_obj))
+head(resNull(ef_obj))
+
+# Access the fitted values
+
+head(fitFull(ef_obj))
+head(fitNull(ef_obj))
+
+
+```
+
+### Visualization of the null and full models (gene 2)
+
+The goal of this section is to make the graph on page 26 of the edge manual. We will plot the fitted values for the null model and the full model. 
+
+Note: for the null model, there is only one set of fitted values for all of the groups (e.g. cases and controls), whereas for the full model, is one set for each group. 
+
+```{r}
+# Pull the fitted values
+fit_full <- as.data.frame(fitFull(ef_obj))
+fit_null <- as.data.frame(fitNull(ef_obj))
+
+# Get the fitted values for the cases
+fit_full_case <- t(fit_full[2,1:6])
+fit_null_case <- t(fit_null[2,1:6])
+
+# Get the time
+time <- as.data.frame(c(0, 2, 24, 4, 6, 9, 0, 2, 24, 4, 6, 9))
+
+# Get the case/control status
+
+class12 <- as.data.frame(c("endotoxin", "endotoxin", "endotoxin", "endotoxin", "endotoxin", "endotoxin", "control", "control", "control", "control", "control", "control"))
+
+# Get the fitted values for the cases
+fit_full_control <- t(fit_full[2,25:30])
+fit_null_control <- t(fit_null[2,25:30])
+
+# Make the tables for full and null values
+fit_full_case_control <- rbind(fit_full_case, fit_full_control)
+fit_null_case_control <- rbind(fit_null_case, fit_null_control)
+
+fit_full_plot <- cbind(time, class12, fit_full_case_control)
+fit_null_plot <- cbind(time, class12, fit_null_case_control)
+
+colnames(fit_full_plot) <- c("Time", "Group", "Expression")
+colnames(fit_null_plot) <- c("Time", "Group", "Expression")
+
+# Make the plots for gene 2
+
+# Null model
+
+ggplot(data=fit_null_plot, aes(x=Time, y=Expression))  +   labs(x = "Time (hours)", y = "Expression values", title = "Fitted expression values under the null model for Gene 2") + geom_smooth(se = FALSE, color = "black") 
+
+# Full model
+
+ggplot(data=fit_full_plot, aes(x=Time, y=Expression, color = factor(Group))) + geom_point() +   labs(x = "Time (hours)", y = "Expression values", title = "Fitted expression values under the full model for Gene 2") + scale_color_discrete(name = "Group") + geom_smooth()
+```
+
+The plot cotains the following: case data (endotoxin, teal), control data (control, orange), curve of the null model (black), curves of the alternative model (endotoxin is teal and control is orange). 
+
+```{r}
+# Overlap the data, the null model, and the full model
+
+ggplot(data = endotoxin_class_plot, aes(y = endotoxin_class_plot$V5, x = endotoxin_class_plot$V2)) + geom_point(aes(color = factor(endotoxin_class_plot$V3, labels = c("control", "endotoxin")))) + labs(x = "Time (hours)", y = "Expression", title = "Expression over time for Gene 2")  + geom_smooth(data=fit_full_plot, aes(x=Time, y=Expression, color = factor(Group))) + scale_color_discrete(name = "Group") + geom_smooth(data=fit_null_plot, aes(x=Time, y=Expression), colour = "black", se = FALSE) 
+
+```
+Black curve = null model, Orange and green curves = full model
+
+# Make the plots for gene 108 
+
+```{r}
+# Make the plots for gene 108
+
+# Get the fitted values for the cases
+fit_full_case <- t(fit_full[108,1:6])
+fit_null_case <- t(fit_null[108,1:6])
+
+# Get the time
+time <- as.data.frame(c(0, 2, 24, 4, 6, 9, 0, 2, 24, 4, 6, 9))
+
+# Get the case/control status
+
+class12 <- as.data.frame(c("endotoxin", "endotoxin", "endotoxin", "endotoxin", "endotoxin", "endotoxin", "control", "control", "control", "control", "control", "control"))
+
+# Get the fitted values for the cases
+fit_full_control <- t(fit_full[108,25:30])
+fit_null_control <- t(fit_null[108,25:30])
+
+# Make the tables for full and null values
+fit_full_case_control <- rbind(fit_full_case, fit_full_control)
+fit_null_case_control <- rbind(fit_null_case, fit_null_control)
+
+fit_full_plot <- cbind(time, class12, fit_full_case_control)
+fit_null_plot <- cbind(time, class12, fit_null_case_control)
+
+colnames(fit_full_plot) <- c("Time", "Group", "Expression")
+colnames(fit_null_plot) <- c("Time", "Group", "Expression")
+
+
+# Null model
+
+ggplot(data=fit_null_plot, aes(x=Time, y=Expression))  +   labs(x = "Time (hours)", y = "Expression values", title = "Fitted expression values under the null model for Gene 108") + geom_smooth(se = FALSE, color = "black") 
+
+# Full model
+
+ggplot(data=fit_full_plot, aes(x=Time, y=Expression, color = factor(Group))) + geom_point() +   labs(x = "Time (hours)", y = "Expression values", title = "Fitted expression values under the full model for Gene 108") + scale_color_discrete(name = "Group") + geom_smooth()
+
+# Overlap the data, the null model, and the full model
+
+ggplot(data = endotoxin_class_plot, aes(y = endotoxin_class_plot$V111, x = endotoxin_class_plot$V2)) + geom_point(aes(color = factor(endotoxin_class_plot$V3, labels = c("control", "endotoxin")))) + labs(x = "Time (hours)", y = "Expression", title = "Expression over time for Gene 108")  + geom_smooth(data=fit_full_plot, aes(x=Time, y=Expression, color = factor(Group))) + scale_color_discrete(name = "Group") + geom_smooth(data=fit_null_plot, aes(x=Time, y=Expression), colour = "black", se = FALSE) 
+
+```
+
+
+# Make the plots for gene 1
+
+```{r}
+# Get the fitted values for the cases
+fit_full_case <- t(fit_full[1,1:6])
+fit_null_case <- t(fit_null[1,1:6])
+
+# Get the time
+time <- as.data.frame(c(0, 2, 24, 4, 6, 9, 0, 2, 24, 4, 6, 9))
+
+# Get the case/control status
+
+class12 <- as.data.frame(c("endotoxin", "endotoxin", "endotoxin", "endotoxin", "endotoxin", "endotoxin", "control", "control", "control", "control", "control", "control"))
+
+# Get the fitted values for the cases
+fit_full_control <- t(fit_full[1,25:30])
+fit_null_control <- t(fit_null[1,25:30])
+
+# Make the tables for full and null values
+fit_full_case_control <- rbind(fit_full_case, fit_full_control)
+fit_null_case_control <- rbind(fit_null_case, fit_null_control)
+
+fit_full_plot <- cbind(time, class12, fit_full_case_control)
+fit_null_plot <- cbind(time, class12, fit_null_case_control)
+
+colnames(fit_full_plot) <- c("Time", "Group", "Expression")
+colnames(fit_null_plot) <- c("Time", "Group", "Expression")
+
+
+# Null model
+
+ggplot(data=fit_null_plot, aes(x=Time, y=Expression))  +   labs(x = "Time (hours)", y = "Expression values", title = "Fitted expression values under the null model for Gene 1") + geom_smooth(se = FALSE, color = "black") 
+
+# Full model
+
+ggplot(data=fit_full_plot, aes(x=Time, y=Expression, color = factor(Group))) + geom_point() +   labs(x = "Time (hours)", y = "Expression values", title = "Fitted expression values under the full model for Gene 1") + scale_color_discrete(name = "Group") + geom_smooth()
+
+# Overlap the data, the null model, and the full model
+
+ggplot(data = endotoxin_class_plot, aes(y = endotoxin_class_plot$V4, x = endotoxin_class_plot$V2)) + geom_point(aes(color = factor(endotoxin_class_plot$V3, labels = c("control", "endotoxin")))) + labs(x = "Time (hours)", y = "Expression", title = "Expression over time for Gene 1")  + geom_smooth(data=fit_full_plot, aes(x=Time, y=Expression, color = factor(Group))) + scale_color_discrete(name = "Group") + geom_smooth(data=fit_null_plot, aes(x=Time, y=Expression), colour = "black", se = FALSE) 
+
+```
+
+
+
+### Significance Analysis
+
+We are trying to answer the question whether the full model fits the data better than the null model. This will be repeated for each gene. In order to say that the full model fits significantly better than the null model, we need a p-value. We can calculate a p-value using either the likelihood ratio test or the optimal discovery procedure. 
+
+#### The likelihood ratio test (lrt)
+
+```{r}
+# Perform the likelihood ratio test
+de_lrt <- lrt(de_obj, nullDistn = "normal")
+
+# Look at the significance results
+
+summary(de_lrt)
+```
+
+#### The optimal discovery procedure (odp)
+
+The components of "odp":
+
+* bs.its- number of bootstrap iterations
+
+* verbose- prints each bootstrap iteration number
+
+* n.mods- the number of clusters in the k-means algorithm (assigns genes to groups in order to speed up the computational time of the algorithm). If n.mods = the number of genes, then the original ODP is used but small n.mods values will decrease the computational time. It is recommended to use n.mods = 50 because it will cause a negligible loss in power but will ensure a minimal computational time. 
+
+```{r}
+# Run odp
+
+de_odp <- odp(de_obj, bs.its = 50, verbose = FALSE, n.mods = 50)
+
+# See the results
+summary(de_odp)
+```
+
+Extract the significance results. We will find the following parts:
+
+* pi0- provides an estimate of the proportion of null p-values
+
+* pvalues- the p-values of the hypothesis that H0 = null model fits the same as the full model for each gene
+
+* qvalues- Since we are performing multiple tests and want to avoid false positives, we will use the estimated q-values.
+
+* lfdr- local false discovery rates
+
+```{r}
+# Extract the significance results
+
+sig_results <- qvalueObj(de_odp)
+
+# See the names of the slots
+names(sig_results)
+
+# See the p-values for each of the genes
+
+head(sig_results$pvalues)
+
+# See the q-values for each of the genes
+
+head(sig_results$qvalues)
+
+# Look at the local false discovery rates (lfdr)
+
+head(sig_results$lfdr)
+
+# See pi0
+
+head(sig_results$pi0)
+
+# Plot the results of the bootstrap
+hist(sig_results)
+
+# Save the p-values and q-values for each of the genes 
+
+p_value_endo_genes_edge <- as.data.frame(sig_results$pvalues) 
+dim(p_value_endo_genes_edge)
+rownames(p_value_endo_genes_edge) <- c(1:500)
+
+q_value_endo_genes_edge <- as.data.frame(sig_results$qvalues) 
+dim(q_value_endo_genes_edge)
+rownames(q_value_endo_genes_edge) <- c(1:500)
+
+# We are going to save the p-values for edge so that we can later compare the two
+
+write.table(p_value_endo_genes_edge, "~/diffTimeExpression/data/p_value_endo_genes_edge_data.txt", sep="\t")
+
+# write.table(q_value_endo_genes_edge, "~/diffTimeExpression/data/q_value_endo_genes_edge_data.txt", sep="\t")
+
+
+```
+
+

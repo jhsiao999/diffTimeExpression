@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>Example_time_series_example_comparison</title>
+
+<script src="libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.5/css/united.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+
+<style type="text/css">
+
+/* padding for bootstrap navbar */
+body {
+  padding-top: 50px;
+  padding-bottom: 40px;
+}
+
+
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h2 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+.section h3 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+
+
+
+/* don't use link color in navbar */
+.dropdown-menu>li>a {
+  color: black;
+}
+
+/* some padding for disqus */
+#disqus_thread {
+  margin-top: 45px;
+}
+
+</style>
+
+<link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="libs/highlight/textmate.css"
+      type="text/css" />
+<script src="libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script src="libs/navigation-1.1/tabsets.js"></script>
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">diffTimeExpression</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="license.html">License</a></li>
+        <li><a href="https://github.com/jhsiao999/diffTimeExpression">GitHub</a></li>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Example_time_series_example_comparison</h1>
+
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#compare-unadjusted-p-values-from-edge-and-masigpro-df-2">Compare unadjusted p-values from edge and maSigPro (df= 2)</a></li>
+<li><a href="#compare-unadjusted-p-values-from-edge-and-masigpro-df-5">Compare unadjusted p-values from edge and maSigPro (df= 5)</a></li>
+<li><a href="#compare-benjamini-hotchberg-corrected-p-values-from-the-two-software-programs">Compare Benjamini-Hotchberg corrected p-values from the two software programs</a></li>
+<li><a href="#compare-the-number-of-genes-at-fdr-1-and-fdr-10-for-both-software-programs">Compare the number of genes at FDR 1% and FDR 10% for both software programs</a></li>
+<li><a href="#compare-the-number-of-de-genes">Compare the number of DE genes</a></li>
+<li><a href="#compare-the-p-values-and-q-values-of-the-genes-that-were-statistically-significant-in-both-programs">Compare the p-values and q-values of the genes that were statistically significant in both programs</a></li>
+</ul>
+</div>
+
+<p>The goal of this section is to compare the results from edge (df = 2) and maSigPro (df = 2) for the endotoxin data.</p>
+<pre class="r"><code># Load libraries
+
+library(&quot;Hmisc&quot;)</code></pre>
+<pre><code>## Loading required package: lattice</code></pre>
+<pre><code>## Loading required package: survival</code></pre>
+<pre><code>## Loading required package: Formula</code></pre>
+<pre><code>## Loading required package: ggplot2</code></pre>
+<pre><code>## 
+## Attaching package: &#39;Hmisc&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     format.pval, round.POSIXt, trunc.POSIXt, units</code></pre>
+<pre class="r"><code>library(&quot;formattable&quot;)
+
+# Load data
+
+# p-values from edge
+
+p_value_endo_genes_edge_data &lt;- read.csv(&quot;~/diffTimeExpression/data/p_value_endo_genes_edge_data.txt&quot;, sep=&quot;&quot;)
+
+# p-values from maSigPro (df = 2)
+
+p_value_maSigPro_df_2 &lt;- read.csv(&quot;~/diffTimeExpression/data/p_value_maSigPro_df_2.txt&quot;, sep=&quot;&quot;)
+
+# p-values from maSigPro (df = 5)
+
+p_value_maSigPro_df_5 &lt;- read.csv(&quot;~/diffTimeExpression/data/p_value_maSigPro_df_5.txt&quot;, sep=&quot;&quot;)</code></pre>
+<div id="compare-unadjusted-p-values-from-edge-and-masigpro-df-2" class="section level3">
+<h3>Compare unadjusted p-values from edge and maSigPro (df= 2)</h3>
+<pre class="r"><code># Combine the two lists of unadjusted p-values into one data frame
+unadjust_p_value &lt;- as.data.frame(cbind(p_value_endo_genes_edge_data, p_value_maSigPro_df_2))
+colnames(unadjust_p_value) &lt;- c(&quot;Unadjusted p-value in edge (df = 2)&quot;, &quot;Unadjusted p-value in maSigPro (df = 2)&quot;)
+
+# Find the correlation between the two numbers
+
+rc &lt;- rcorr(as.matrix(unadjust_p_value), type=&quot;pearson&quot;) # Correlation = 0.3766195 and p = approximately 0
+
+flattenCorrMatrix &lt;- function(cormat, pmat) {
+  ut &lt;- upper.tri(cormat)
+  data.frame(
+    row = rownames(cormat)[row(cormat)[ut]],
+    column = rownames(cormat)[col(cormat)[ut]],
+    cor  =(cormat)[ut],
+    p = pmat[ut]
+    )
+}
+
+flattenCorrMatrix(rc$r, rc$P)</code></pre>
+<pre><code>##                                   row
+## 1 Unadjusted p-value in edge (df = 2)
+##                                    column       cor            p
+## 1 Unadjusted p-value in maSigPro (df = 2) 0.3511001 4.440892e-16</code></pre>
+<pre class="r"><code># Compare unadjusted p-values from edge and maSigPro
+
+plot(unadjust_p_value, main = &quot;Unadjusted p-values from edge and maSigPro (Pearson&#39;s correlation = 0.377)&quot;)
+
+# Make a best fit line (which we can then add to the plot)
+abline(lm(unadjust_p_value[,1] ~ unadjust_p_value[,2]))</code></pre>
+<p><img src="Example_times_series_example_comparison_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>From this plot, it appears that edge is more conservative than maSigPro when df = 2.</p>
+</div>
+<div id="compare-unadjusted-p-values-from-edge-and-masigpro-df-5" class="section level3">
+<h3>Compare unadjusted p-values from edge and maSigPro (df= 5)</h3>
+<pre class="r"><code># Combine the two lists of unadjusted p-values into one data frame
+unadjust_p_value &lt;- as.data.frame(cbind(p_value_endo_genes_edge_data, p_value_maSigPro_df_5))
+colnames(unadjust_p_value) &lt;- c(&quot;Unadjusted p-values in edge (df = 2)&quot;, &quot;Unadjusted p-values in maSigPro (df = 5)&quot;)
+
+# Find the correlation between the two numbers
+
+rc &lt;- rcorr(as.matrix(unadjust_p_value), type=&quot;pearson&quot;) # Correlation = 0.3235 and p = 1.203482e-13
+
+flattenCorrMatrix(rc$r, rc$P)</code></pre>
+<pre><code>##                                    row
+## 1 Unadjusted p-values in edge (df = 2)
+##                                     column       cor            p
+## 1 Unadjusted p-values in maSigPro (df = 5) 0.3078247 1.956657e-12</code></pre>
+<pre class="r"><code># Compare unadjusted p-values from edge and maSigPro
+
+plot(unadjust_p_value, main = &quot;Unadjusted p-values from edge and maSigPro (Pearson&#39;s correlation = 0.324)&quot;)
+
+# Make a best fit line (which we can then add to the plot)
+abline(lm(unadjust_p_value[,1] ~ unadjust_p_value[,2]))</code></pre>
+<p><img src="Example_times_series_example_comparison_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>The correlation for unadjusted p-values is higher in edge and maSigPro when df = 2 in maSigPro</p>
+</div>
+<div id="compare-benjamini-hotchberg-corrected-p-values-from-the-two-software-programs" class="section level3">
+<h3>Compare Benjamini-Hotchberg corrected p-values from the two software programs</h3>
+<pre class="r"><code># Make Benjamini-Hotchberg correction for each set of the unadjusted p-values
+
+edge_fdr &lt;- p.adjust(as.matrix(p_value_endo_genes_edge_data), method = &quot;fdr&quot;, n = 500)
+summary(edge_fdr)</code></pre>
+<pre><code>##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+## 0.001667 0.338500 0.731800 0.590800 0.871500 0.995300</code></pre>
+<pre class="r"><code>maSigPro_fdr &lt;- p.adjust(as.matrix(p_value_maSigPro_df_2), method = &quot;fdr&quot;, n = 500)
+summary(maSigPro_fdr)</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+## 0.00000 0.00473 0.21460 0.34890 0.67860 0.99660</code></pre>
+<pre class="r"><code># Combine the two lists of adjusted p-values into one data frame
+
+adjusted_p_value &lt;- as.data.frame(cbind(edge_fdr, maSigPro_fdr))
+colnames(adjusted_p_value) &lt;- c(&quot;BH adjusted p-values in edge (df = 2)&quot;, &quot;BH adjusted p-values in maSigPro (df = 2)&quot;)
+
+# Find the correlation between the two numbers
+
+rc &lt;- rcorr(as.matrix(adjusted_p_value), type=&quot;pearson&quot;) # Correlation = 0.4421 and p equals approximately 0
+
+flattenCorrMatrix(rc$r, rc$P)</code></pre>
+<pre><code>##                                     row
+## 1 BH adjusted p-values in edge (df = 2)
+##                                      column       cor p
+## 1 BH adjusted p-values in maSigPro (df = 2) 0.4093033 0</code></pre>
+<pre class="r"><code># Compare unadjusted p-values from edge and maSigPro
+
+plot(adjusted_p_value, main = &quot;BH adjusted p-values from edge and maSigPro (Pearson&#39;s corr. = 0.4421)&quot;)
+
+# Make a best fit line (which we can then add to the plot)
+abline(lm(adjusted_p_value[,1] ~ adjusted_p_value[,2]))</code></pre>
+<p><img src="Example_times_series_example_comparison_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+</div>
+<div id="compare-the-number-of-genes-at-fdr-1-and-fdr-10-for-both-software-programs" class="section level3">
+<h3>Compare the number of genes at FDR 1% and FDR 10% for both software programs</h3>
+<pre class="r"><code># Find the number of significant genes at FDR 1%
+
+length(edge_fdr[edge_fdr&lt;=0.01]) # 10 genes</code></pre>
+<pre><code>## [1] 20</code></pre>
+<pre class="r"><code>length(maSigPro_fdr[maSigPro_fdr&lt;=0.01]) #135 genes</code></pre>
+<pre><code>## [1] 135</code></pre>
+<pre class="r"><code># Find overlap
+
+overlap_0.01 &lt;- adjusted_p_value[adjusted_p_value[,1] &lt;= 0.01 &amp; adjusted_p_value[,2] &lt;= 0.01, ]
+
+nrow(overlap_0.01)</code></pre>
+<pre><code>## [1] 18</code></pre>
+<pre class="r"><code># Find the number of significant genes at FDR 10%
+
+length(edge_fdr[edge_fdr&lt;=0.1]) #61 genes</code></pre>
+<pre><code>## [1] 61</code></pre>
+<pre class="r"><code>length(maSigPro_fdr[maSigPro_fdr&lt;=0.1]) # 196 genes</code></pre>
+<pre><code>## [1] 196</code></pre>
+<pre class="r"><code>overlap_0.1 &lt;- adjusted_p_value[adjusted_p_value[,1] &lt;= 0.1 &amp; adjusted_p_value[,2] &lt;= 0.1, ]
+
+nrow(overlap_0.1)</code></pre>
+<pre><code>## [1] 54</code></pre>
+<pre class="r"><code># Make a table of the results
+
+DF &lt;- data.frame(Program=c(&quot;edge&quot;, &quot;maSigPro&quot;, &quot;Genes in common&quot;), FDR_0.01=c(&quot;10&quot;, &quot;135&quot;, &quot;10&quot;), FDR_0.1=c(&quot;61&quot;, &quot;196&quot;, &quot;55&quot;))
+formattable(DF)</code></pre>
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+Program
+</th>
+<th style="text-align:right;">
+FDR_0.01
+</th>
+<th style="text-align:right;">
+FDR_0.1
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+edge
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+61
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+maSigPro
+</td>
+<td style="text-align:right;">
+135
+</td>
+<td style="text-align:right;">
+196
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Genes in common
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+55
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="compare-the-number-of-de-genes" class="section level3">
+<h3>Compare the number of DE genes</h3>
+</div>
+<div id="compare-the-p-values-and-q-values-of-the-genes-that-were-statistically-significant-in-both-programs" class="section level3">
+<h3>Compare the p-values and q-values of the genes that were statistically significant in both programs</h3>
+</div>
+
+
+<!-- some extra javascript for older browsers -->
+<script type="text/javascript" src="libs/polyfill.js"></script>
+
+<script>
+
+// manage active state of menu based on current page
+$(document).ready(function () {
+
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+
+    // manage active menu header
+    if (href.startsWith('authoring_'))
+      $('a[href="' + 'authoring' + '"]').parent().addClass('active');
+    else if (href.endsWith('_format.html'))
+      $('a[href="' + 'formats' + '"]').parent().addClass('active');
+    else if (href.startsWith('developer_'))
+      $('a[href="' + 'developer' + '"]').parent().addClass('active');
+
+});
+
+</script>
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
