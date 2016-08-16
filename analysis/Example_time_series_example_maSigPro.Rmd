@@ -4,7 +4,7 @@ author: "Lauren Blake"
 date: "July 22, 2016"
 output:
   html_document:
-    css: floating-toc.css
+    css: ../layout/floating-toc.css
     toc: true
 ---
 

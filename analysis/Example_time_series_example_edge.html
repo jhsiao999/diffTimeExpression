@@ -104,7 +104,7 @@ h6 {
 }
 </style>
 
-<link rel="stylesheet" href="floating-toc.css" type="text/css" />
+<link rel="stylesheet" href="../layout/floating-toc.css" type="text/css" />
 
 </head>
 
@@ -199,8 +199,8 @@ $(document).ready(function () {
 </ul>
 </div>
 
-<p><strong>Last updated:</strong> 2016-08-15</p>
-<p><strong>Code version:</strong> b0cbf73e3db9ca70711a8c6aa8472d4d2e76d7c2</p>
+<p><strong>Last updated:</strong> 2016-08-16</p>
+<p><strong>Code version:</strong> e0856a352e494c0de5f1f93226e04753d2aebdca</p>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <p>This file is going through the case study for a longitudinal time course experiment. The analysis will be performed using the R package edge from Storey et al. 2005.</p>
@@ -1158,14 +1158,14 @@ Biological variables:
  
 
 Statistical significance summary:
-pi0:    0.6218772   
+pi0:    0.7589271   
 
 Cumulative number of significant calls:
 
           &lt;1e-04 &lt;0.001 &lt;0.01 &lt;0.025 &lt;0.05 &lt;0.1  &lt;1
-p-value       14     23    58     72   100  134 500
-q-value        0      0    22     25    52   70 500
-local fdr      0      0    15     19    23   37 500</code></pre>
+p-value        9     17    48     71   102  135 500
+q-value        0      0    13     20    37   61 500
+local fdr      0      0     9     13    19   32 249</code></pre>
 <p>Extract the significance results. We will find the following parts:</p>
 <ul>
 <li><p>pi0- provides an estimate of the proportion of null p-values</p></li>
@@ -1184,19 +1184,19 @@ names(sig_results)</code></pre>
 <pre class="r"><code># See the p-values for each of the genes
 
 head(sig_results$pvalues)</code></pre>
-<pre><code>[1] 0.25092 0.30656 0.66772 0.00004 0.73264 0.69872</code></pre>
+<pre><code>[1] 0.93612 0.46124 0.65664 0.00004 0.81528 0.22240</code></pre>
 <pre class="r"><code># See the q-values for each of the genes
 
 head(sig_results$qvalues)</code></pre>
-<pre><code>[1] 0.369038883 0.418076062 0.546368244 0.001243754 0.558077797 0.553720737</code></pre>
+<pre><code>[1] 0.744957711 0.600491518 0.668139904 0.003035708 0.709561988 0.448897283</code></pre>
 <pre class="r"><code># Look at the local false discovery rates (lfdr)
 
 head(sig_results$lfdr)</code></pre>
-<pre><code>[1] 0.764161568 0.802658142 0.837294480 0.003374911 0.837294480 0.837294480</code></pre>
+<pre><code>[1] 1.000000000 1.000000000 1.000000000 0.005350374 1.000000000 0.908903287</code></pre>
 <pre class="r"><code># See pi0
 
 head(sig_results$pi0)</code></pre>
-<pre><code>[1] 0.6218772</code></pre>
+<pre><code>[1] 0.7589271</code></pre>
 <pre class="r"><code># Plot the results of the bootstrap
 hist(sig_results)</code></pre>
 <p><img src="figure/Example_time_series_example_edge.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>

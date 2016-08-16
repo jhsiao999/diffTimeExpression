@@ -1,6 +1,10 @@
 ---
 title: "Relevant papers"
 date: 2016-07-21
+output:
+  html_document:
+    css: ../layout/floating-toc.css
+    toc: true
 ---
 
 **Last updated:** `r Sys.Date()`
@@ -8,7 +12,7 @@ date: 2016-07-21
 **Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
 
 ```{r chunk-options, include=FALSE}
-source("chunk-options.R")
+source("../layout/chunk-options.R")
 ```
 
 ## Methods

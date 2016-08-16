@@ -102,7 +102,7 @@ h6 {
 }
 </style>
 
-<link rel="stylesheet" href="floating-toc.css" type="text/css" />
+<link rel="stylesheet" href="../layout/floating-toc.css" type="text/css" />
 
 </head>
 
@@ -188,8 +188,8 @@ $(document).ready(function () {
 </ul>
 </div>
 
-<p><strong>Last updated:</strong> 2016-08-15</p>
-<p><strong>Code version:</strong> b0cbf73e3db9ca70711a8c6aa8472d4d2e76d7c2</p>
+<p><strong>Last updated:</strong> 2016-08-16</p>
+<p><strong>Code version:</strong> e0856a352e494c0de5f1f93226e04753d2aebdca</p>
 <p>The goal of this section is to compare the results from edge (df = 2) and maSigPro (df = 2) for the endotoxin data.</p>
 <pre class="r"><code># Load libraries
 
@@ -242,7 +242,7 @@ flattenCorrMatrix(rc$r, rc$P)</code></pre>
 <pre><code>                                  row
 1 Unadjusted p-value in edge (df = 2)
                                    column       cor p
-1 Unadjusted p-value in maSigPro (df = 2) 0.3731325 0</code></pre>
+1 Unadjusted p-value in maSigPro (df = 2) 0.3658995 0</code></pre>
 <pre class="r"><code># Compare unadjusted p-values from edge and maSigPro
 
 plot(unadjust_p_value, main = &quot;Unadjusted p-values from edge and maSigPro (Pearson&#39;s correlation = 0.377)&quot;)
@@ -266,7 +266,7 @@ flattenCorrMatrix(rc$r, rc$P)</code></pre>
 <pre><code>                                   row
 1 Unadjusted p-values in edge (df = 2)
                                     column       cor            p
-1 Unadjusted p-values in maSigPro (df = 5) 0.3092628 1.525891e-12</code></pre>
+1 Unadjusted p-values in maSigPro (df = 5) 0.3095199 1.459277e-12</code></pre>
 <pre class="r"><code># Compare unadjusted p-values from edge and maSigPro
 
 plot(unadjust_p_value, main = &quot;Unadjusted p-values from edge and maSigPro (Pearson&#39;s correlation = 0.324)&quot;)
@@ -283,7 +283,7 @@ abline(lm(unadjust_p_value[,1] ~ unadjust_p_value[,2]))</code></pre>
 edge_fdr &lt;- p.adjust(as.matrix(p_value_endo_genes_edge_data), method = &quot;fdr&quot;, n = 500)
 summary(edge_fdr)</code></pre>
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
- 0.0020  0.3516  0.7410  0.6041  0.8742  0.9994 </code></pre>
+ 0.0040  0.3300  0.7599  0.6168  0.8855  0.9950 </code></pre>
 <pre class="r"><code>maSigPro_fdr &lt;- p.adjust(as.matrix(p_value_maSigPro_df_2), method = &quot;fdr&quot;, n = 500)
 summary(maSigPro_fdr)</code></pre>
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
@@ -301,7 +301,7 @@ flattenCorrMatrix(rc$r, rc$P)</code></pre>
 <pre><code>                                    row
 1 BH adjusted p-values in edge (df = 2)
                                      column       cor p
-1 BH adjusted p-values in maSigPro (df = 2) 0.4349943 0</code></pre>
+1 BH adjusted p-values in maSigPro (df = 2) 0.4229088 0</code></pre>
 <pre class="r"><code># Compare unadjusted p-values from edge and maSigPro
 
 plot(adjusted_p_value, main = &quot;BH adjusted p-values from edge and maSigPro (Pearson&#39;s corr. = 0.4421)&quot;)
@@ -315,7 +315,7 @@ abline(lm(adjusted_p_value[,1] ~ adjusted_p_value[,2]))</code></pre>
 <pre class="r"><code># Find the number of significant genes at FDR 1%
 
 length(edge_fdr[edge_fdr&lt;=0.01]) # 10 genes</code></pre>
-<pre><code>[1] 19</code></pre>
+<pre><code>[1] 10</code></pre>
 <pre class="r"><code>length(maSigPro_fdr[maSigPro_fdr&lt;=0.01]) #135 genes</code></pre>
 <pre><code>[1] 135</code></pre>
 <pre class="r"><code># Find overlap
@@ -323,17 +323,17 @@ length(edge_fdr[edge_fdr&lt;=0.01]) # 10 genes</code></pre>
 overlap_0.01 &lt;- adjusted_p_value[adjusted_p_value[,1] &lt;= 0.01 &amp; adjusted_p_value[,2] &lt;= 0.01, ]
 
 nrow(overlap_0.01)</code></pre>
-<pre><code>[1] 18</code></pre>
+<pre><code>[1] 10</code></pre>
 <pre class="r"><code># Find the number of significant genes at FDR 10%
 
 length(edge_fdr[edge_fdr&lt;=0.1]) #61 genes</code></pre>
-<pre><code>[1] 65</code></pre>
+<pre><code>[1] 47</code></pre>
 <pre class="r"><code>length(maSigPro_fdr[maSigPro_fdr&lt;=0.1]) # 196 genes</code></pre>
 <pre><code>[1] 196</code></pre>
 <pre class="r"><code>overlap_0.1 &lt;- adjusted_p_value[adjusted_p_value[,1] &lt;= 0.1 &amp; adjusted_p_value[,2] &lt;= 0.1, ]
 
 nrow(overlap_0.1)</code></pre>
-<pre><code>[1] 56</code></pre>
+<pre><code>[1] 44</code></pre>
 <pre class="r"><code># Make a table of the results
 
 DF &lt;- data.frame(Program=c(&quot;edge&quot;, &quot;maSigPro&quot;, &quot;Genes in common&quot;), FDR_0.01=c(&quot;10&quot;, &quot;135&quot;, &quot;10&quot;), FDR_0.1=c(&quot;61&quot;, &quot;196&quot;, &quot;55&quot;))

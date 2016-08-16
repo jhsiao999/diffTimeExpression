@@ -2,7 +2,7 @@
 title: "Example_time_series_example_comparison"
 output:
   html_document:
-    css: floating-toc.css
+    css: ../layout/floating-toc.css
     toc: true
 ---
 
