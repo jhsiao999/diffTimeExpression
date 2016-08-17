@@ -62,6 +62,8 @@ ind <- endotoxin$ind
 time <- endotoxin$time
 ```
 
+
+
 ## Plot for one gene
 
 ```{r}
@@ -138,11 +140,12 @@ head(nullMatrix(de_obj))
 head(fullMatrix(de_obj))
 ```
 
+
 ## Fit the data
 
 We are going to fit each of the models using least squares. From this, we are going to get the following information:
   
-  * fit.full/fit.null- fitted values from the full/null models
+* fit.full/fit.null- fitted values from the full/null models
 
 * res.fill/res.null- residuals from the full/null model
 
@@ -163,21 +166,18 @@ summary(ef_obj)
 
 
 # Access the fitted coefficients of the full model
-
 head(betaCoef(ef_obj))
 
 # Access the full and null residuals
-
 head(resFull(ef_obj))
 head(resNull(ef_obj))
 
 # Access the fitted values
-
 head(fitFull(ef_obj))
 head(fitNull(ef_obj))
-
-
 ```
+
+
 
 ## Visualization of the null and full models (gene 2)
 
@@ -218,11 +218,9 @@ colnames(fit_null_plot) <- c("Time", "Group", "Expression")
 # Make the plots for gene 2
 
 # Null model
-
 ggplot(data=fit_null_plot, aes(x=Time, y=Expression))  +   labs(x = "Time (hours)", y = "Expression values", title = "Fitted expression values under the null model for Gene 2") + geom_smooth(se = FALSE, color = "black") 
 
 # Full model
-
 ggplot(data=fit_full_plot, aes(x=Time, y=Expression, color = factor(Group))) + geom_point() +   labs(x = "Time (hours)", y = "Expression values", title = "Fitted expression values under the full model for Gene 2") + scale_color_discrete(name = "Group") + geom_smooth()
 ```
 
@@ -333,6 +331,9 @@ We are trying to answer the question whether the full model fits the data better
 
 ### The likelihood ratio test (lrt)
 
+
+Assume normal distribution of the residuals.
+
 ```{r}
 # Perform the likelihood ratio test
 de_lrt <- lrt(de_obj, nullDistn = "normal")
@@ -342,11 +343,33 @@ de_lrt <- lrt(de_obj, nullDistn = "normal")
 summary(de_lrt)
 ```
 
+Do not assume normal distribution of the residuals. Adopt bootstrapping procedure to make null distribution of the test statistic.
+
+```{r}
+# Perform the likelihood ratio test
+de_lrt_bootstrap <- lrt(de_obj, nullDistn = "bootstrap")
+
+# Look at the significance results
+summary(de_lrt_bootstrap)
+```
+
+*Observation*: From the results above, we see almost no different between LRT results with and without normality assumption. When not assuming normality, there are a handful of more significant genes at each cut-off, but the difference is small. The following plot further corroborate this observation.
+
+```{r}
+plot(x = de_lrt@qvalueObj$pvalues,
+     y = de_lrt_bootstrap@qvalueObj$pvalues,
+     xlab = "LRT with normality",
+     ylab = "LRT w/o normality", log = "xy",
+     main = "LRT p-values")
+abline(0, 1, col = "red")
+```
+
+
 ### The optimal discovery procedure (odp)
 
 The components of "odp":
   
-  * bs.its- number of bootstrap iterations
+* bs.its- number of bootstrap iterations
 
 * verbose- prints each bootstrap iteration number
 

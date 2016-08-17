@@ -200,7 +200,7 @@ $(document).ready(function () {
 </div>
 
 <p><strong>Last updated:</strong> 2016-08-16</p>
-<p><strong>Code version:</strong> e0856a352e494c0de5f1f93226e04753d2aebdca</p>
+<p><strong>Code version:</strong> 82630628602bb0e81698b89cdd0182c6a927301e</p>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <p>This file is going through the case study for a longitudinal time course experiment. The analysis will be performed using the R package edge from Storey et al. 2005.</p>
@@ -212,34 +212,8 @@ $(document).ready(function () {
 
 # source(&quot;https://bioconductor.org/biocLite.R&quot;)
 # biocLite(&quot;edge&quot;)
-library(&quot;edge&quot;)</code></pre>
-<pre><code>Loading required package: Biobase</code></pre>
-<pre><code>Loading required package: BiocGenerics</code></pre>
-<pre><code>Loading required package: parallel</code></pre>
-<pre><code>
-Attaching package: &#39;BiocGenerics&#39;</code></pre>
-<pre><code>The following objects are masked from &#39;package:parallel&#39;:
-
-    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
-    clusterExport, clusterMap, parApply, parCapply, parLapply,
-    parLapplyLB, parRapply, parSapply, parSapplyLB</code></pre>
-<pre><code>The following objects are masked from &#39;package:stats&#39;:
-
-    IQR, mad, xtabs</code></pre>
-<pre><code>The following objects are masked from &#39;package:base&#39;:
-
-    anyDuplicated, append, as.data.frame, cbind, colnames,
-    do.call, duplicated, eval, evalq, Filter, Find, get, grep,
-    grepl, intersect, is.unsorted, lapply, lengths, Map, mapply,
-    match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,
-    Position, rank, rbind, Reduce, rownames, sapply, setdiff,
-    sort, table, tapply, union, unique, unsplit</code></pre>
-<pre><code>Welcome to Bioconductor
-
-    Vignettes contain introductory material; view with
-    &#39;browseVignettes()&#39;. To cite Bioconductor, see
-    &#39;citation(&quot;Biobase&quot;)&#39;, and for packages &#39;citation(&quot;pkgname&quot;)&#39;.</code></pre>
-<pre class="r"><code>library(&quot;ggplot2&quot;)
+library(&quot;edge&quot;)
+library(&quot;ggplot2&quot;)
 library(&quot;splines&quot;)
 
 # Import the data
@@ -607,7 +581,6 @@ beta.coef:
 stat.type: 
 [1] &quot;lrt&quot;</code></pre>
 <pre class="r"><code># Access the fitted coefficients of the full model
-
 head(betaCoef(ef_obj))</code></pre>
 <pre><code>       [,1]        [,2]        [,3]        [,4]        [,5]        [,6]
 1 10.437814 -0.18129042  0.02435197 -0.08107760  0.15195724 -0.82084348
@@ -617,7 +590,6 @@ head(betaCoef(ef_obj))</code></pre>
 5 10.072105  0.53135427 -0.07802490  0.64025079  0.19071392 -0.63954645
 6 10.542188  0.04075908 -0.03347217 -0.02239589  0.06668477  0.01997250</code></pre>
 <pre class="r"><code># Access the full and null residuals
-
 head(resFull(ef_obj))</code></pre>
 <pre><code>            1            2             3           4             5
 1  0.33597800 -2.595353718 -2.9344098705 0.142892740  0.0237527113
@@ -747,7 +719,6 @@ head(resFull(ef_obj))</code></pre>
 5 -6.81894957  0.28269038  0.58370905  0.42651298 -3.56661403
 6 -0.00126789  0.02215400 -0.02367983  0.01936972 -0.02759194</code></pre>
 <pre class="r"><code># Access the fitted values
-
 head(fitFull(ef_obj))</code></pre>
 <pre><code>          1         2         3         4         5         6         7
 1 10.256523 10.366421  9.541060 10.457037 10.509596 10.505155 10.256523
@@ -885,11 +856,9 @@ colnames(fit_null_plot) &lt;- c(&quot;Time&quot;, &quot;Group&quot;, &quot;Expre
 # Make the plots for gene 2
 
 # Null model
-
 ggplot(data=fit_null_plot, aes(x=Time, y=Expression))  +   labs(x = &quot;Time (hours)&quot;, y = &quot;Expression values&quot;, title = &quot;Fitted expression values under the null model for Gene 2&quot;) + geom_smooth(se = FALSE, color = &quot;black&quot;) </code></pre>
 <p><img src="figure/Example_time_series_example_edge.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code># Full model
-
 ggplot(data=fit_full_plot, aes(x=Time, y=Expression, color = factor(Group))) + geom_point() +   labs(x = &quot;Time (hours)&quot;, y = &quot;Expression values&quot;, title = &quot;Fitted expression values under the full model for Gene 2&quot;) + scale_color_discrete(name = &quot;Group&quot;) + geom_smooth()</code></pre>
 <pre><code>Warning in simpleLoess(y, x, w, span, degree = degree, parametric =
 parametric, : Chernobyl! trL&gt;n 6
@@ -1069,6 +1038,7 @@ parametric, : Chernobyl! trL&gt;n 6</code></pre>
 <p>We are trying to answer the question whether the full model fits the data better than the null model. This will be repeated for each gene. In order to say that the full model fits significantly better than the null model, we need a p-value. We can calculate a p-value using either the likelihood ratio test or the optimal discovery procedure.</p>
 <div id="the-likelihood-ratio-test-lrt" class="section level3">
 <h3>The likelihood ratio test (lrt)</h3>
+<p>Assume normal distribution of the residuals.</p>
 <pre class="r"><code># Perform the likelihood ratio test
 de_lrt &lt;- lrt(de_obj, nullDistn = &quot;normal&quot;)
 
@@ -1113,6 +1083,158 @@ Cumulative number of significant calls:
 p-value        4     12    29     52    71  106 500
 q-value        0      0     8     11    22   24 500
 local fdr      0      0     4      8    10   19 500</code></pre>
+<p>Do not assume normal distribution of the residuals. Adopt bootstrapping procedure to make null distribution of the test statistic.</p>
+<pre class="r"><code># Perform the likelihood ratio test
+de_lrt_bootstrap &lt;- lrt(de_obj, nullDistn = &quot;bootstrap&quot;)</code></pre>
+<pre><code>
+ Null iteration:  1
+ Null iteration:  2
+ Null iteration:  3
+ Null iteration:  4
+ Null iteration:  5
+ Null iteration:  6
+ Null iteration:  7
+ Null iteration:  8
+ Null iteration:  9
+ Null iteration:  10
+ Null iteration:  11
+ Null iteration:  12
+ Null iteration:  13
+ Null iteration:  14
+ Null iteration:  15
+ Null iteration:  16
+ Null iteration:  17
+ Null iteration:  18
+ Null iteration:  19
+ Null iteration:  20
+ Null iteration:  21
+ Null iteration:  22
+ Null iteration:  23
+ Null iteration:  24
+ Null iteration:  25
+ Null iteration:  26
+ Null iteration:  27
+ Null iteration:  28
+ Null iteration:  29
+ Null iteration:  30
+ Null iteration:  31
+ Null iteration:  32
+ Null iteration:  33
+ Null iteration:  34
+ Null iteration:  35
+ Null iteration:  36
+ Null iteration:  37
+ Null iteration:  38
+ Null iteration:  39
+ Null iteration:  40
+ Null iteration:  41
+ Null iteration:  42
+ Null iteration:  43
+ Null iteration:  44
+ Null iteration:  45
+ Null iteration:  46
+ Null iteration:  47
+ Null iteration:  48
+ Null iteration:  49
+ Null iteration:  50
+ Null iteration:  51
+ Null iteration:  52
+ Null iteration:  53
+ Null iteration:  54
+ Null iteration:  55
+ Null iteration:  56
+ Null iteration:  57
+ Null iteration:  58
+ Null iteration:  59
+ Null iteration:  60
+ Null iteration:  61
+ Null iteration:  62
+ Null iteration:  63
+ Null iteration:  64
+ Null iteration:  65
+ Null iteration:  66
+ Null iteration:  67
+ Null iteration:  68
+ Null iteration:  69
+ Null iteration:  70
+ Null iteration:  71
+ Null iteration:  72
+ Null iteration:  73
+ Null iteration:  74
+ Null iteration:  75
+ Null iteration:  76
+ Null iteration:  77
+ Null iteration:  78
+ Null iteration:  79
+ Null iteration:  80
+ Null iteration:  81
+ Null iteration:  82
+ Null iteration:  83
+ Null iteration:  84
+ Null iteration:  85
+ Null iteration:  86
+ Null iteration:  87
+ Null iteration:  88
+ Null iteration:  89
+ Null iteration:  90
+ Null iteration:  91
+ Null iteration:  92
+ Null iteration:  93
+ Null iteration:  94
+ Null iteration:  95
+ Null iteration:  96
+ Null iteration:  97
+ Null iteration:  98
+ Null iteration:  99
+ Null iteration:  100</code></pre>
+<pre class="r"><code># Look at the significance results
+summary(de_lrt_bootstrap)</code></pre>
+<pre><code>
+ExpressionSet Summary 
+ 
+ExpressionSet (storageMode: lockedEnvironment)
+assayData: 500 features, 46 samples 
+  element names: exprs 
+protocolData: none
+phenoData
+  sampleNames: 1 2 ... 46 (46 total)
+  varLabels: ind tme grp
+  varMetadata: labelDescription
+featureData: none
+experimentData: use &#39;experimentData(object)&#39;
+Annotation:  
+
+de Analysis Summary 
+ 
+Total number of arrays: 46 
+Total number of probes: 500 
+ 
+Biological variables: 
+    Null Model:~grp + ns(tme, df = 2, intercept = FALSE)
+
+    Full Model:~grp + ns(tme, df = 2, intercept = FALSE) + (grp):ns(tme, df = 2, 
+    intercept = FALSE)
+
+....... 
+ 
+
+Statistical significance summary:
+pi0:    0.7207962   
+
+Cumulative number of significant calls:
+
+          &lt;1e-04 &lt;0.001 &lt;0.01 &lt;0.025 &lt;0.05 &lt;0.1  &lt;1
+p-value        4     11    27     52    71  106 500
+q-value        0      0     8      9    20   24 500
+local fdr      0      0     4      8     9   17 500</code></pre>
+<p><em>Observation</em>: From the results above, we see almost no different between LRT results with and without normality assumption. When not assuming normality, there are a handful of more significant genes at each cut-off, but the difference is small. The following plot further corroborate this observation.</p>
+<pre class="r"><code>plot(x = de_lrt@qvalueObj$pvalues,
+     y = de_lrt_bootstrap@qvalueObj$pvalues,
+     xlab = &quot;LRT with normality&quot;,
+     ylab = &quot;LRT w/o normality&quot;, log = &quot;xy&quot;,
+     main = &quot;LRT p-values&quot;)
+abline(0, 1, col = &quot;red&quot;)</code></pre>
+<p><img src="figure/Example_time_series_example_edge.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="the-optimal-discovery-procedure-odp" class="section level3">
 <h3>The optimal discovery procedure (odp)</h3>
@@ -1158,14 +1280,14 @@ Biological variables:
  
 
 Statistical significance summary:
-pi0:    0.7589271   
+pi0:    0.6393943   
 
 Cumulative number of significant calls:
 
           &lt;1e-04 &lt;0.001 &lt;0.01 &lt;0.025 &lt;0.05 &lt;0.1  &lt;1
-p-value        9     17    48     71   102  135 500
-q-value        0      0    13     20    37   61 500
-local fdr      0      0     9     13    19   32 249</code></pre>
+p-value        7     20    48     61    88  124 500
+q-value        0      0    20     22    41   56 500
+local fdr      0      0     7     17    22   28 500</code></pre>
 <p>Extract the significance results. We will find the following parts:</p>
 <ul>
 <li><p>pi0- provides an estimate of the proportion of null p-values</p></li>
@@ -1184,22 +1306,22 @@ names(sig_results)</code></pre>
 <pre class="r"><code># See the p-values for each of the genes
 
 head(sig_results$pvalues)</code></pre>
-<pre><code>[1] 0.93612 0.46124 0.65664 0.00004 0.81528 0.22240</code></pre>
+<pre><code>[1] 0.17708 0.32196 0.64416 0.00024 0.86612 0.93928</code></pre>
 <pre class="r"><code># See the q-values for each of the genes
 
 head(sig_results$qvalues)</code></pre>
-<pre><code>[1] 0.744957711 0.600491518 0.668139904 0.003035708 0.709561988 0.448897283</code></pre>
+<pre><code>[1] 0.335436084 0.461568133 0.564642344 0.005115154 0.606293030 0.621708358</code></pre>
 <pre class="r"><code># Look at the local false discovery rates (lfdr)
 
 head(sig_results$lfdr)</code></pre>
-<pre><code>[1] 1.000000000 1.000000000 1.000000000 0.005350374 1.000000000 0.908903287</code></pre>
+<pre><code>[1] 0.67854340 0.82230083 0.85682233 0.01451533 0.85682233 0.85682233</code></pre>
 <pre class="r"><code># See pi0
 
 head(sig_results$pi0)</code></pre>
-<pre><code>[1] 0.7589271</code></pre>
+<pre><code>[1] 0.6393943</code></pre>
 <pre class="r"><code># Plot the results of the bootstrap
 hist(sig_results)</code></pre>
-<p><img src="figure/Example_time_series_example_edge.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/Example_time_series_example_edge.Rmd/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code># Save the p-values and q-values for each of the genes 
 
 p_value_endo_genes_edge &lt;- as.data.frame(sig_results$pvalues) 
