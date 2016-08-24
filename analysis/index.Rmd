@@ -15,7 +15,7 @@ title: "Home"
 
 * Presentations
     * Introduction to differential expression analysis of RNA-seq time-series experiments. [download](../docs/talk-lab-20160706-diffTimeExpression.pdf)
-    * Differential expression analysis of RNA-seq time-series experiments Part II: functional data analysis. [upcoming](../docs/talk-lab-20160817-diffTimeExpression.pdf)
+    * Differential expression analysis of RNA-seq time-series experiments Part II: functional data analysis. [download](../docs/talk-lab-20160817-diffTimeExpression.pdf)
 
 
 ## Practical examples
